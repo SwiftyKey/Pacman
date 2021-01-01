@@ -1,9 +1,13 @@
 import copy
+import math
+
 import pygame
 
-BoardPath = "resources/BoardTiles/"
+BOARD_PATH = "resources/BoardTiles/"
+TEXT_PATH = "resources/TextTiles/"
+ELEMENT_PATH = "resources/OtherTiles/"
 
-originalGameBoard = [
+original_game_Board = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -41,16 +45,16 @@ originalGameBoard = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
 ]
-gameBoard = copy.deepcopy(originalGameBoard)
-square = 30
+game_board = copy.deepcopy(original_game_Board)
+square = 20
 
-spriteRatio = 3 / 2
-spriteOffset = square * (1 - spriteRatio) * (1 / 2)
+sprite_ratio = 3 / 2
+sprite_offset = square * (1 - sprite_ratio) * (1 / 2)
 
-(width, height) = (len(gameBoard[0]) * square, len(gameBoard) * square)
+(width, height) = (len(game_board[0]) * square, len(game_board) * square)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Pacman")
-pelletColor = (222, 161, 133)
+pellet_color = (222, 161, 133)
 
 fps = 60
 clock = pygame.time.Clock()
@@ -59,16 +63,27 @@ running = True
 
 class Game:
     def __init__(self):
-        pass
+        self.pacman = Pacman(26.0, 13.5)
+        self.paused = True
+
+    def started(self):
+        self.paused = False
+
+    def is_paused(self):
+        return self.paused is True
+
+    def update(self):
+        self.pacman.update()
+        self.pacman.draw()
 
     @staticmethod
     def render():
         screen.fill((0, 0, 0))
 
         current_tile = 0
-        for i in range(3, len(gameBoard) - 2):
-            for j in range(len(gameBoard[0])):
-                if gameBoard[i][j] == 3:
+        for i in range(3, len(game_board) - 2):
+            for j in range(len(game_board[0])):
+                if game_board[i][j] == 3:
                     image = str(current_tile)
                     if len(image) == 1:
                         image = "00" + image
@@ -76,26 +91,124 @@ class Game:
                         image = "0" + image
 
                     image = "tile" + image + ".png"
-                    tile = pygame.image.load(BoardPath + image)
+                    tile = pygame.image.load(BOARD_PATH + image)
                     tile = pygame.transform.scale(tile, (square, square))
 
                     screen.blit(tile, (j * square, i * square, square, square))
 
-                elif gameBoard[i][j] == 2:
-                    pygame.draw.circle(screen, pelletColor,
+                elif game_board[i][j] == 2:
+                    pygame.draw.circle(screen, pellet_color,
                                        (j * square + square // 2, i * square + square // 2),
                                        square // 4)
-                elif gameBoard[i][j] == 5:
+                elif game_board[i][j] == 5:
                     pygame.draw.circle(screen, (0, 0, 0),
                                        (j * square + square // 2, i * square + square // 2),
                                        square // 2)
-                elif gameBoard[i][j] == 6:
-                    pygame.draw.circle(screen, pelletColor,
+                elif game_board[i][j] == 6:
+                    pygame.draw.circle(screen, pellet_color,
                                        (j * square + square // 2, i * square + square // 2),
                                        square // 2)
 
                 current_tile += 1
         pygame.display.update()
+
+
+class Pacman:
+    def __init__(self, row, col):
+        self.row = row
+        self.col = col
+        self.mouth_open = False
+        self.speed = 1 / 2
+        self.mouth_change_delay = 5
+        self.mouth_change_count = 0
+        self.image = None
+        self.dir = 0  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.new_dir = 0
+
+    def change_direction(self, new_dir: int):
+        self.new_dir = new_dir
+
+    def update(self):
+        if self.new_dir == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                self.row -= self.speed
+                self.dir = self.new_dir
+                return
+        elif self.new_dir == 1:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+                self.col += self.speed
+                self.dir = self.new_dir
+                return
+        elif self.new_dir == 2:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                self.row += self.speed
+                self.dir = self.new_dir
+                return
+        elif self.new_dir == 3:
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+                self.col -= self.speed
+                self.dir = self.new_dir
+                return
+
+        if self.dir == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                self.row -= self.speed
+        elif self.dir == 1:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+                self.col += self.speed
+        elif self.dir == 2:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                self.row += self.speed
+        elif self.dir == 3:
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+                self.col -= self.speed
+
+    # метод для рисования пакман в зависимости от его состояния
+    def draw(self):
+        self.image = pygame.image.load(ELEMENT_PATH + "tile112.png")
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+
+        if self.mouth_change_count == self.mouth_change_delay:
+            self.mouth_change_count = 0
+            self.mouth_open = not self.mouth_open
+        self.mouth_change_count += 1
+
+        if self.dir == 0:
+            if self.mouth_open:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile049.png")
+            else:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile051.png")
+        elif self.dir == 1:
+            if self.mouth_open:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile052.png")
+            else:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile054.png")
+        elif self.dir == 2:
+            if self.mouth_open:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile053.png")
+            else:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile055.png")
+        elif self.dir == 3:
+            if self.mouth_open:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile048.png")
+            else:
+                self.image = pygame.image.load(ELEMENT_PATH + "tile050.png")
+
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+
+
+def canMove(row: int, col: int):
+    if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
+        return True
+    return False
 
 
 game = Game()
@@ -104,6 +217,17 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            game.started()
+            if event.key == pygame.K_w:
+                game.pacman.change_direction(0)
+            elif event.key == pygame.K_d:
+                game.pacman.change_direction(1)
+            elif event.key == pygame.K_s:
+                game.pacman.change_direction(2)
+            elif event.key == pygame.K_a:
+                game.pacman.change_direction(3)
     game.render()
+    game.update()
     pygame.display.flip()
     clock.tick(fps)
