@@ -1,8 +1,8 @@
 import copy
 import math
 
-import pygame
 import random
+import pygame
 
 BOARD_PATH = "resources/BoardTiles/"
 TEXT_PATH = "resources/TextTiles/"
@@ -73,6 +73,10 @@ class Game:
         self.score = 0
         self.high_score = 0
 
+        self.berry = "tile080.png"
+        self.berry_state = [200, 400, False]
+        self.berry_location = [20.0, 13.5]
+
         self.paused = True
 
     def started(self):
@@ -87,6 +91,7 @@ class Game:
         self.ghost.update()
         self.ghost.draw()
         self.display_score()
+        self.draw_berry()
 
     def display_score(self):
         text_one_up = ["tile033.png", "tile021.png", "tile016.png"]
@@ -129,6 +134,13 @@ class Game:
             image = pygame.transform.scale(image, (square, square))
             screen.blit(image, ((high_score_start + 6 + index) * square, square + 4, square, square))
             index += 1
+
+    def draw_berry(self):
+        image = pygame.image.load(ELEMENT_PATH + self.berry)
+        image = pygame.transform.scale(image, (
+            int(square * sprite_ratio), int(square * sprite_ratio)))
+        screen.blit(image, (
+            self.berry_location[1] * square, self.berry_location[0] * square, square, square))
 
     def get_high_score(self):
         file = open(DATA_PATH + "high_score.txt", "r")
@@ -337,7 +349,7 @@ class Ghost:
                     self.dir = 0
 
     def turn_in_impasse(self, moved):
-        if moved == False:
+        if not moved:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.dir = 0
