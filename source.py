@@ -2,6 +2,7 @@ import copy
 import math
 
 import pygame
+import random
 
 BOARD_PATH = "resources/BoardTiles/"
 TEXT_PATH = "resources/TextTiles/"
@@ -214,72 +215,70 @@ class Ghost:
         self.col = col
         self.speed = 1 / 2
         self.image = None
-        self.dir = 0  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
         self.new_dir = 0
+        self.all_directions = [0, 1, 2, 3]
 
     def update(self):
         vector = (self.col - game.pacman.col, self.row - game.pacman.row)
-        print(vector)
+        last_direction = self.col, self.row
         if vector[0] < 0:
-            if vector[1] < 0:
-                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
-                    self.new_dir = 2
-                    self.row += self.speed
-                    self.dir = self.new_dir
-                    return
-                else:
-                    self.new_dir = 1
-                    self.col += self.speed
-                    self.dir = self.new_dir
-                    return
-            else:
-                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
-                    self.new_dir = 0
-                    self.row -= self.speed
-                    self.dir = self.new_dir
-                    return
-                else:
-                    self.new_dir = 1
-                    self.col += self.speed
-                    self.dir = self.new_dir
-                    return
+            dir_pacman_hor = 'r'
         elif vector[0] > 0:
-            if vector[1] < 0:
+            dir_pacman_hor = 'l'
+        else:
+            dir_pacman_hor = ''
+
+        if vector[1] < 0:
+            dir_pacman_ver = 'b'
+        elif vector[1] > 0:
+            dir_pacman_ver = 't'
+        else:
+            dir_pacman_ver = ''
+
+        if self.dir % 2 == 0:
+            if dir_pacman_hor == 'r':
+                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+                    self.dir = 1
+            elif dir_pacman_hor == 'l':
+                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+                    self.dir = 3
+        else:
+            if dir_pacman_ver == 'b':
                 if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
-                    self.new_dir = 2
-                    self.row += self.speed
-                    self.dir = self.new_dir
-                    return
-                else:
-                    self.new_dir = 3
-                    self.col -= self.speed
-                    self.dir = self.new_dir
-                    return
-            else:
+                    self.dir = 2
+            elif dir_pacman_ver == 't':
                 if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
-                    self.new_dir = 0
-                    self.row -= self.speed
-                    self.dir = self.new_dir
-                    return
-                else:
-                    self.new_dir = 3
-                    self.col -= self.speed
-                    self.dir = self.new_dir
-                    return
+                    self.dir = 0
+
+        moved = False
 
         if self.dir == 0:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
                 self.row -= self.speed
+                moved = True
         elif self.dir == 1:
             if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
                 self.col += self.speed
+                moved = True
         elif self.dir == 2:
             if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
                 self.row += self.speed
+                moved = True
         elif self.dir == 3:
             if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
                 self.col -= self.speed
+                moved = True
 
+        if moved == False:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                self.dir = 0
+            elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+                self.dir = 1
+            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                self.dir = 2
+            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+                self.dir = 3
 
     def draw(self):
         self.image = pygame.image.load(ELEMENT_PATH + "tile096.png")
@@ -302,6 +301,7 @@ class Ghost:
         screen.blit(self.image, (self.col * square + sprite_offset,
                                  self.row * square + sprite_offset,
                                  square, square))
+
 
 def canMove(row: int, col: int):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
