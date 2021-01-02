@@ -1,7 +1,7 @@
 import copy
 import math
+
 import pygame
-import random
 
 BOARD_PATH = "resources/BoardTiles/"
 TEXT_PATH = "resources/TextTiles/"
@@ -292,7 +292,6 @@ class Ghost:
 
     def update(self):
         vector = (self.col - game.pacman.col, self.row - game.pacman.row)
-        last_direction = self.col, self.row
         if vector[0] < 0:
             dir_pacman_hor = 'r'
         elif vector[0] > 0:
@@ -345,7 +344,7 @@ class Ghost:
                 self.col -= self.speed
                 moved = True
 
-        if moved == False:
+        if not moved:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.dir = 0
