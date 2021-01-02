@@ -7,6 +7,7 @@ import random
 BOARD_PATH = "resources/BoardTiles/"
 TEXT_PATH = "resources/TextTiles/"
 ELEMENT_PATH = "resources/OtherTiles/"
+DATA_PATH = "resources/UserData/"
 
 original_game_Board = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -66,6 +67,12 @@ class Game:
     def __init__(self):
         self.pacman = Pacman(26.0, 13.5)
         self.ghost = Ghost(14.0, 13.5)
+        self.points = []
+        self.lives = 3
+
+        self.score = 0
+        self.high_score = 0
+
         self.paused = True
 
     def started(self):
@@ -79,6 +86,59 @@ class Game:
         self.pacman.draw()
         self.ghost.update()
         self.ghost.draw()
+        self.display_score()
+
+    def display_score(self):
+        text_one_up = ["tile033.png", "tile021.png", "tile016.png"]
+        text_high_score = ["tile007.png", "tile008.png", "tile006.png", "tile007.png", "tile015.png",
+                           "tile019.png", "tile002.png", "tile014.png", "tile018.png", "tile004.png"]
+        index = 0
+        score_start = 5
+        high_score_start = 11
+        for i in range(score_start, score_start + len(text_one_up)):
+            image = pygame.image.load(TEXT_PATH + text_one_up[index])
+            image = pygame.transform.scale(image, (square, square))
+            screen.blit(image, (i * square, 4, square, square))
+            index += 1
+        score = str(self.score)
+        if score == "0":
+            score = "00"
+        index = 0
+        for i in range(0, len(score)):
+            digit = int(score[i])
+            image = pygame.image.load(TEXT_PATH + "tile0" + str(32 + digit) + ".png")
+            image = pygame.transform.scale(image, (square, square))
+            screen.blit(image, ((score_start + 2 + index) * square, square + 4, square, square))
+            index += 1
+
+        index = 0
+        for i in range(high_score_start, high_score_start + len(text_high_score)):
+            image = pygame.image.load(TEXT_PATH + text_high_score[index])
+            image = pygame.transform.scale(image, (square, square))
+            screen.blit(image, (i * square, 4, square, square))
+            index += 1
+
+        self.get_high_score()
+        high_score = str(self.high_score)
+        if high_score == "0":
+            high_score = "00"
+        index = 0
+        for i in range(0, len(high_score)):
+            digit = int(high_score[i])
+            image = pygame.image.load(TEXT_PATH + "tile0" + str(32 + digit) + ".png")
+            image = pygame.transform.scale(image, (square, square))
+            screen.blit(image, ((high_score_start + 6 + index) * square, square + 4, square, square))
+            index += 1
+
+    def get_high_score(self):
+        file = open(DATA_PATH + "high_score.txt", "r")
+        self.high_score = int(file.read())
+        file.close()
+
+    def record_high_score(self):
+        file = open(DATA_PATH + "HighScore.txt", "w+")
+        file.write(str(self.high_score))
+        file.close()
 
     @staticmethod
     def render():
@@ -334,6 +394,7 @@ while running:
             elif event.key == pygame.K_a:
                 game.pacman.change_direction(3)
     game.render()
-    game.update()
+    if not game.is_paused():
+        game.update()
     pygame.display.flip()
     clock.tick(fps)
