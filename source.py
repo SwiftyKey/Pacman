@@ -238,17 +238,21 @@ class Ghost:
 
         if self.dir % 2 == 0:
             if dir_pacman_hor == 'r':
-                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                        and 3 != self.dir:
                     self.dir = 1
             elif dir_pacman_hor == 'l':
-                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                        and 1 != self.dir:
                     self.dir = 3
         else:
             if dir_pacman_ver == 'b':
-                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 0 != self.dir:
                     self.dir = 2
             elif dir_pacman_ver == 't':
-                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 2 != self.dir:
                     self.dir = 0
 
         moved = False
@@ -271,13 +275,17 @@ class Ghost:
                 moved = True
 
         if moved == False:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 0 != self.dir:
                 self.dir = 0
-            elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+            elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                    and 1 != self.dir:
                 self.dir = 1
-            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 2 != self.dir:
                 self.dir = 2
-            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                    and 3 != self.dir:
                 self.dir = 3
 
     def draw(self):
