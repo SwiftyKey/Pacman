@@ -66,7 +66,8 @@ running = True
 class Game:
     def __init__(self):
         self.pacman = Pacman(26.0, 13.5)
-        self.ghost = Ghost(14.0, 13.5)
+        self.blinky = Blinky(14.0, 13.5)
+        self.pinky = Pinky(14.0, 13.5)  # 17.0, 11.5
         self.points = []
         self.lives = 3
 
@@ -88,8 +89,10 @@ class Game:
     def update(self):
         self.pacman.update()
         self.pacman.draw()
-        self.ghost.update()
-        self.ghost.draw()
+        self.blinky.update()
+        self.blinky.draw()
+        self.pinky.update()
+        self.pinky.draw()
         self.display_score()
         self.draw_berry()
 
@@ -287,31 +290,59 @@ class Ghost:
         self.col = col
         self.speed = 1 / 2
         self.image = None
-        self.dir = random.choice([1, 3])  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.dir = 0
         self.new_dir = 0
 
     def update(self):
-        self.change_direction()
-        moved = False
+        pass
 
+    def draw(self):
+        pass
+
+
+class Blinky(Ghost):
+    def __init__(self, row, col):
+        super(Ghost, self).__init__()
+        self.row = row
+        self.col = col
+        self.speed = 1 / 2
+        self.image = None
+        self.dir = random.choice([1, 3])  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+
+    def update(self):
+        self.change_direction()
+
+        if self.move():
+            return
+
+        self.move()
+
+    def move(self):
+        moved = False
         if self.dir == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 2 != self.dir:
                 self.row -= self.speed
                 moved = True
         elif self.dir == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                    and 3 != self.dir:
                 self.col += self.speed
                 moved = True
         elif self.dir == 2:
-            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 0 != self.dir:
                 self.row += self.speed
                 moved = True
         elif self.dir == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0\
+                    and self.dir != 1:
                 self.col -= self.speed
                 moved = True
 
         self.turn_in_impasse(moved)
+
+        return moved
 
     def change_direction(self):
         vector = (self.col - game.pacman.col, self.row - game.pacman.row)
@@ -351,16 +382,16 @@ class Ghost:
     def turn_in_impasse(self, moved):
         if not moved:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
-                    and 0 != self.dir:
+                    and 2 != self.dir:
                 self.dir = 0
             elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                    and 1 != self.dir:
+                    and 3 != self.dir:
                 self.dir = 1
             elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
-                    and 2 != self.dir:
+                    and 0 != self.dir:
                 self.dir = 2
             elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
-                    and 3 != self.dir:
+                    and 1 != self.dir:
                 self.dir = 3
 
     def draw(self):
@@ -378,6 +409,42 @@ class Ghost:
             self.image = pygame.image.load(ELEMENT_PATH + 'tile098.png')
         elif self.dir == 3:
             self.image = pygame.image.load(ELEMENT_PATH + 'tile100.png')
+
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+
+
+class Pinky(Ghost):
+    def __init__(self, row, col):
+        super(Ghost, self).__init__()
+        self.row = row
+        self.col = col
+        self.speed = 1 / 2
+        self.image = None
+        self.dir = random.choice([1, 3])
+        self.new_dir = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.image = pygame.image.load(ELEMENT_PATH + "tile128.png")
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+        if self.dir == 0:
+            self.image = pygame.image.load(ELEMENT_PATH + "tile134.png")
+        elif self.dir == 1:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile129.png')
+        elif self.dir == 2:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile130.png')
+        elif self.dir == 3:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile133.png')
 
         self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
                                                          int(square * sprite_ratio)))
