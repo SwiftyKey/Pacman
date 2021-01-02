@@ -64,6 +64,7 @@ running = True
 class Game:
     def __init__(self):
         self.pacman = Pacman(26.0, 13.5)
+        self.ghost = Ghost(14.0, 13.5)
         self.paused = True
 
     def started(self):
@@ -75,6 +76,8 @@ class Game:
     def update(self):
         self.pacman.update()
         self.pacman.draw()
+        self.ghost.update()
+        self.ghost.draw()
 
     @staticmethod
     def render():
@@ -204,6 +207,101 @@ class Pacman:
                                  self.row * square + sprite_offset,
                                  square, square))
 
+
+class Ghost:
+    def __init__(self, row, col):
+        self.row = row
+        self.col = col
+        self.speed = 1 / 2
+        self.image = None
+        self.dir = 0  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.new_dir = 0
+
+    def update(self):
+        vector = (self.col - game.pacman.col, self.row - game.pacman.row)
+        print(vector)
+        if vector[0] < 0:
+            if vector[1] < 0:
+                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                    self.new_dir = 2
+                    self.row += self.speed
+                    self.dir = self.new_dir
+                    return
+                else:
+                    self.new_dir = 1
+                    self.col += self.speed
+                    self.dir = self.new_dir
+                    return
+            else:
+                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                    self.new_dir = 0
+                    self.row -= self.speed
+                    self.dir = self.new_dir
+                    return
+                else:
+                    self.new_dir = 1
+                    self.col += self.speed
+                    self.dir = self.new_dir
+                    return
+        elif vector[0] > 0:
+            if vector[1] < 0:
+                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                    self.new_dir = 2
+                    self.row += self.speed
+                    self.dir = self.new_dir
+                    return
+                else:
+                    self.new_dir = 3
+                    self.col -= self.speed
+                    self.dir = self.new_dir
+                    return
+            else:
+                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                    self.new_dir = 0
+                    self.row -= self.speed
+                    self.dir = self.new_dir
+                    return
+                else:
+                    self.new_dir = 3
+                    self.col -= self.speed
+                    self.dir = self.new_dir
+                    return
+
+        if self.dir == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+                self.row -= self.speed
+        elif self.dir == 1:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+                self.col += self.speed
+        elif self.dir == 2:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+                self.row += self.speed
+        elif self.dir == 3:
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+                self.col -= self.speed
+
+
+    def draw(self):
+        self.image = pygame.image.load(ELEMENT_PATH + "tile096.png")
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+        if self.dir == 0:
+            self.image = pygame.image.load(ELEMENT_PATH + "tile102.png")
+        elif self.dir == 1:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile096.png')
+        elif self.dir == 2:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile098.png')
+        elif self.dir == 3:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile100.png')
+
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
 
 def canMove(row: int, col: int):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
