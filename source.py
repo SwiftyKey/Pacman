@@ -299,6 +299,15 @@ class Ghost:
     def draw(self):
         pass
 
+    def change_direction(self):
+        pass
+
+    def turn_in_impasse(self, moved):
+        pass
+
+    def move(self):
+        pass
+
 
 class Blinky(Ghost):
     def __init__(self, row, col):
@@ -307,7 +316,7 @@ class Blinky(Ghost):
         self.col = col
         self.speed = 1 / 2
         self.image = None
-        self.dir = random.choice([1, 3])  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
 
     def update(self):
         self.change_direction()
@@ -424,11 +433,121 @@ class Pinky(Ghost):
         self.col = col
         self.speed = 1 / 2
         self.image = None
-        self.dir = random.choice([1, 3])
+        self.dir = 3
         self.new_dir = 0
 
     def update(self):
-        pass
+        self.change_direction()
+
+        if self.move():
+            return
+
+        self.move()
+
+    def change_direction(self):
+        pacman_dir = game.pacman.dir
+        if pacman_dir == 0:
+            vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
+        elif pacman_dir == 1:
+            vector = (self.col - game.pacman.col + 2.5, self.row - game.pacman.row)
+        elif pacman_dir == 2:
+            vector = (self.col - game.pacman.col, self.row - game.pacman.row - 2.5)
+        elif pacman_dir == 3:
+            vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
+
+        if vector[0] < 0:
+            dir_hor = 'r'
+        elif vector[0] > 0:
+            dir_hor = 'l'
+        else:
+            dir_hor = ''
+
+        if vector[1] < 0:
+            dir_ver = 'b'
+        elif vector[1] > 0:
+            dir_ver = 't'
+        else:
+            dir_ver = ''
+
+        if game.blinky.row == self.row:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                    and 3 != self.dir:
+                self.dir = 1
+                return
+            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                    and self.dir != 1:
+                self.dir = 3
+                return
+        elif game.blinky.col == self.col:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 2 != self.dir:
+                self.dir = 0
+                return
+            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 0 != self.dir:
+                self.dir = 2
+                return
+            
+        if self.dir % 2 != 0:
+            if dir_ver == 'b':
+                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 0 != self.dir:
+                    self.dir = 2
+            elif dir_ver == 't':
+                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 2 != self.dir:
+                    self.dir = 0
+        else:
+            if dir_hor == 'r':
+                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                        and 3 != self.dir:
+                    self.dir = 1
+            elif dir_hor == 'l':
+                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                        and 1 != self.dir:
+                    self.dir = 3
+
+    def turn_in_impasse(self, moved):
+        if not moved:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 2 != self.dir:
+                self.dir = 0
+            elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                    and 3 != self.dir:
+                self.dir = 1
+            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 0 != self.dir:
+                self.dir = 2
+            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                    and 1 != self.dir:
+                self.dir = 3
+
+    def move(self):
+        moved = False
+        if self.dir == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 2 != self.dir:
+                self.row -= self.speed
+                moved = True
+        elif self.dir == 1:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                    and 3 != self.dir:
+                self.col += self.speed
+                moved = True
+        elif self.dir == 2:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 0 != self.dir:
+                self.row += self.speed
+                moved = True
+        elif self.dir == 3:
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                    and self.dir != 1:
+                self.col -= self.speed
+                moved = True
+
+        self.turn_in_impasse(moved)
+
+        return moved
 
     def draw(self):
         self.image = pygame.image.load(ELEMENT_PATH + "tile128.png")
