@@ -533,7 +533,7 @@ class Pinky(Ghost):
             if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 self.col -= self.speed
-                moved = Trues
+                moved = True
         elif self.dir == 0:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
