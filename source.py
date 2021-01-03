@@ -487,54 +487,44 @@ class Pinky(Ghost):
                     and 0 != self.dir:
                 self.dir = 2
                 return
-            
+
         if self.dir % 2 != 0:
-            if dir_ver == 'b':
-                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
-                        and 0 != self.dir:
-                    self.dir = 2
-            elif dir_ver == 't':
+            if dir_ver == 't':
                 if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                         and 2 != self.dir:
                     self.dir = 0
+            elif dir_ver == 'b':
+                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 0 != self.dir:
+                    self.dir = 2
         else:
-            if dir_hor == 'r':
-                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                        and 3 != self.dir:
-                    self.dir = 1
-            elif dir_hor == 'l':
+            if dir_hor == 'l':
                 if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                         and 1 != self.dir:
                     self.dir = 3
+            elif dir_hor == 'r':
+                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                        and 3 != self.dir:
+                    self.dir = 1
 
     def turn_in_impasse(self, moved):
         if not moved:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 0 != self.dir:
+                self.dir = 2
+            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                    and 1 != self.dir:
+                self.dir = 3
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.dir = 0
             elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.dir = 1
-            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
-                    and 0 != self.dir:
-                self.dir = 2
-            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
-                    and 1 != self.dir:
-                self.dir = 3
 
     def move(self):
         moved = False
-        if self.dir == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
-                    and 2 != self.dir:
-                self.row -= self.speed
-                moved = True
-        elif self.dir == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                    and 3 != self.dir:
-                self.col += self.speed
-                moved = True
-        elif self.dir == 2:
+        if self.dir == 2:
             if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.row += self.speed
@@ -543,6 +533,16 @@ class Pinky(Ghost):
             if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 self.col -= self.speed
+                moved = Trues
+        elif self.dir == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and 2 != self.dir:
+                self.row -= self.speed
+                moved = True
+        elif self.dir == 1:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                    and 3 != self.dir:
+                self.col += self.speed
                 moved = True
 
         self.turn_in_impasse(moved)
