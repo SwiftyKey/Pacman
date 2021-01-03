@@ -1,7 +1,6 @@
 import copy
 import math
 
-import random
 import pygame
 
 BOARD_PATH = "resources/BoardTiles/"
@@ -63,11 +62,17 @@ clock = pygame.time.Clock()
 running = True
 
 
+def pause(time):
+    cur = 0
+    while not cur == time:
+        cur += 1
+
+
 class Game:
     def __init__(self):
+        self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5)]
+
         self.pacman = Pacman(26.0, 13.5)
-        self.blinky = Blinky(14.0, 13.5)
-        self.pinky = Pinky(14.0, 13.5)  # 17.0, 11.5
         self.points = []
         self.lives = 3
 
@@ -75,10 +80,36 @@ class Game:
         self.high_score = 0
 
         self.berry = "tile080.png"
+        self.berry_collected = []
         self.berry_state = [200, 400, False]
         self.berry_location = [20.0, 13.5]
+        self.berry_score = 100
 
         self.paused = True
+
+        self.level_timer = 0
+
+    def check_surroundings(self):
+        if self.touchingPacman(self.berry_location[0], self.berry_location[1]) \
+                and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
+                                                                          self.berry_state[1]):
+            self.berry_state[2] = True
+            self.score += self.berry_score
+            self.points.append([self.berry_location[0], self.berry_location[1], self.berry_score, 0])
+            self.berry_collected.append(self.berry)
+
+    def touchingPacman(self, row, col):
+        if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
+            return True
+        elif row + 0.5 >= self.pacman.row >= row and col == self.pacman.col:
+            return True
+        elif row == self.pacman.row and col - 0.5 <= self.pacman.col <= col:
+            return True
+        elif row == self.pacman.row and col + 0.5 >= self.pacman.col >= col:
+            return True
+        elif row == self.pacman.row and col == self.pacman.col:
+            return True
+        return False
 
     def started(self):
         self.paused = False
@@ -89,12 +120,13 @@ class Game:
     def update(self):
         self.pacman.update()
         self.pacman.draw()
-        self.blinky.update()
-        self.blinky.draw()
-        self.pinky.update()
-        self.pinky.draw()
+        for ghost in self.ghosts:
+            ghost.update()
+            ghost.draw()
         self.display_score()
         self.draw_berry()
+        self.check_surroundings()
+        self.level_timer += 1
 
     def display_score(self):
         text_one_up = ["tile033.png", "tile021.png", "tile016.png"]
@@ -139,11 +171,13 @@ class Game:
             index += 1
 
     def draw_berry(self):
-        image = pygame.image.load(ELEMENT_PATH + self.berry)
-        image = pygame.transform.scale(image, (
-            int(square * sprite_ratio), int(square * sprite_ratio)))
-        screen.blit(image, (
-            self.berry_location[1] * square, self.berry_location[0] * square, square, square))
+        if self.level_timer in range(self.berry_state[0], self.berry_state[1]) \
+                and not self.berry_state[2]:
+            image = pygame.image.load(ELEMENT_PATH + self.berry)
+            image = pygame.transform.scale(image, (
+                int(square * sprite_ratio), int(square * sprite_ratio)))
+            screen.blit(image, (
+                self.berry_location[1] * square, self.berry_location[0] * square, square, square))
 
     def get_high_score(self):
         file = open(DATA_PATH + "high_score.txt", "r")
@@ -344,7 +378,7 @@ class Blinky(Ghost):
                 self.row += self.speed
                 moved = True
         elif self.dir == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0\
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 self.col -= self.speed
                 moved = True
@@ -469,7 +503,7 @@ class Pinky(Ghost):
         else:
             dir_ver = ''
 
-        if game.blinky.row == self.row:
+        if game.ghosts[0].row == self.row:
             if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.dir = 1
@@ -478,7 +512,7 @@ class Pinky(Ghost):
                     and self.dir != 1:
                 self.dir = 3
                 return
-        elif game.blinky.col == self.col:
+        elif game.ghosts[0].col == self.col:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.dir = 0
@@ -579,6 +613,15 @@ def canMove(row: int, col: int):
 
 
 game = Game()
+
+
+def reset():
+    global game
+    game.pacman = Pacman(26.0, 13.5)
+    game.lives -= 1
+    game.paused = True
+    game.render()
+
 
 while running:
     for event in pygame.event.get():
