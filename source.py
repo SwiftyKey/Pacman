@@ -252,7 +252,15 @@ class Pacman:
     def change_direction(self, new_dir: int):
         self.new_dir = new_dir
 
+    def change_loc(self):
+        if self.col < 0.5:
+            self.col = 27.0
+
+        if self.col > 27.0:
+            self.col = 0.5
+
     def update(self):
+        self.change_loc()
         if self.new_dir == 0:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
                 self.row -= self.speed
@@ -358,7 +366,7 @@ class Ghost:
             self.col = 27.0
 
         if self.col > 27.0:
-            self.col = -0.5
+            self.col = 0.5
 
     def turn_in_impasse(self, moved):
         if not moved:
