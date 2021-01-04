@@ -80,7 +80,7 @@ class Game:
         self.high_score = 0
 
         self.berry = "tile080.png"
-        self.berry_collected = []
+        self.berries_collected = []
         self.berry_state = [200, 400, False]
         self.berry_location = [20.0, 13.5]
         self.berry_score = 100
@@ -96,7 +96,7 @@ class Game:
             self.berry_state[2] = True
             self.score += self.berry_score
             self.points.append([self.berry_location[0], self.berry_location[1], self.berry_score, 0])
-            self.berry_collected.append(self.berry)
+            self.berries_collected.append(self.berry)
 
     def touchingPacman(self, row, col):
         if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
@@ -124,6 +124,7 @@ class Game:
             ghost.update()
             ghost.draw()
         self.display_score()
+        self.display_collected_berries()
         self.draw_berry()
         self.check_surroundings()
         self.level_timer += 1
@@ -169,6 +170,15 @@ class Game:
             image = pygame.transform.scale(image, (square, square))
             screen.blit(image, ((high_score_start + 6 + index) * square, square + 4, square, square))
             index += 1
+
+    def display_collected_berries(self):
+        berry = [34, 26]
+        for i in range(len(self.berries_collected)):
+            image = pygame.image.load(ELEMENT_PATH + self.berries_collected[i])
+            image = pygame.transform.scale(image, (
+                int(square * sprite_ratio), int(square * sprite_ratio)))
+            screen.blit(image, (
+                (berry[1] - (2 * i)) * square, berry[0] * square + 5, square, square))
 
     def draw_berry(self):
         if self.level_timer in range(self.berry_state[0], self.berry_state[1]) \
