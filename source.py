@@ -243,7 +243,6 @@ class Pacman:
         self.new_dir = new_dir
 
     def update(self):
-        print(self.row, self.col)
         if self.new_dir == 0:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
                 self.row -= self.speed
@@ -564,34 +563,38 @@ class Clyde(Ghost):
         self.col = col
         self.speed = 1 / 3
         self.image = None
+        self.new_dir = 0
         self.dir = 0  # 0: вверх, 1: вправо, 2: вниз, 3: влево
 
-    def update(self):
-        if not self.move():
-            all_directions = [0, 1, 2, 3]
-            random.shuffle(all_directions)
-            for i in all_directions:
-                if self.can_move_in_this_dir(i):
-                    self.dir = i
-                    break
+    def new_direction(self):
+        self.new_dir = random.choice([0, 1, 2, 3])
 
-            self.move()
-
-    def can_move_in_this_dir(self, dir):
-        if dir == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
-                return True
-        elif dir == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
-                return True
-        elif dir == 2:
-            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
-                return True
-        elif dir == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
-                return True
-
-        return False
+    def change_direction(self):
+        if self.new_dir == 0:
+            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                    and self.dir != 2:
+                self.dir = 0
+            else:
+                self.new_direction()
+        elif self.new_dir == 1:
+            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0\
+                    and self.dir != 3:
+                self.dir = 1
+            else:
+                self.new_direction()
+        elif self.new_dir == 2:
+            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0\
+                    and self.dir != 0:
+                self.dir = 2
+                return
+            else:
+                self.new_direction()
+        elif self.new_dir == 3:
+            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                    and self.dir != 1:
+                self.dir = 3
+            else:
+                self.new_direction()
 
     def draw(self):
         self.image = pygame.image.load(ELEMENT_PATH + "tile144.png")
