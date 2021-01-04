@@ -99,7 +99,7 @@ class Game:
             self.points.append([self.berry_location[0], self.berry_location[1], self.berry_score, 0])
             self.berries_collected.append(self.berry)
 
-    def touchingPacman(self, row, col):
+    def touchingPacman(self, row: float, col: float):
         if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
             return True
         elif row + 0.5 >= self.pacman.row >= row and col == self.pacman.col:
@@ -238,7 +238,7 @@ class Game:
 
 
 class Pacman:
-    def __init__(self, row, col):
+    def __init__(self, row: float, col: float):
         self.row = row
         self.col = col
         self.mouth_open = False
@@ -654,7 +654,7 @@ class Clyde(Ghost):
                                  square, square))
 
 
-def canMove(row: int, col: int):
+def canMove(row: float, col: float):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
         return True
     return False
