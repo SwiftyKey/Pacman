@@ -138,6 +138,13 @@ class Game:
         self.draw_berry()
         self.check_surroundings()
         self.level_timer += 1
+        if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
+            if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
+                game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
+                self.score += 10
+                pygame.draw.rect(screen, (0, 0, 0), ((self.pacman.col * square,
+                                                      self.pacman.row * square),
+                                                     (square, square)))
 
     def display_score(self):
         text_one_up = ["tile033.png", "tile021.png", "tile016.png"]
