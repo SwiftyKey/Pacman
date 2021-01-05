@@ -585,13 +585,13 @@ class Inky(Ghost):
         vector = [game.pacman.col - game.ghosts[0].col, game.pacman.row - game.ghosts[0].row]
         pacman_dir = game.pacman.dir
         if pacman_dir == 0:
-            vector[1] += 1.5
+            vector[1] += 1.0
         elif pacman_dir == 1:
-            vector[1] += 1.5
+            vector[1] += 1.0
         elif pacman_dir == 2:
-            vector[0] -= 1.5
+            vector[0] -= 1.0
         elif pacman_dir == 3:
-            vector[0] -= 1.5
+            vector[0] -= 1.0
 
         vector = [vector[0] * 2, vector[0] * 2]
 
