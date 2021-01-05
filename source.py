@@ -100,6 +100,20 @@ class Game:
                     print("game over")
                     # self.game_over()
 
+        if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
+            if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
+                game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
+                self.score += 10
+                pygame.draw.rect(screen, (0, 0, 0), ((self.pacman.col * square,
+                                                      self.pacman.row * square),
+                                                     (square, square)))
+            elif game_board[int(self.pacman.row)][int(self.pacman.col)] in (5, 6):
+                game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
+                self.score += 50
+                pygame.draw.rect(screen, (0, 0, 0), ((self.pacman.col * square,
+                                                      self.pacman.row * square),
+                                                     (square, square)))
+
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
                                                                           self.berry_state[1]):
@@ -138,13 +152,6 @@ class Game:
         self.draw_berry()
         self.check_surroundings()
         self.level_timer += 1
-        if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
-            if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
-                game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
-                self.score += 10
-                pygame.draw.rect(screen, (0, 0, 0), ((self.pacman.col * square,
-                                                      self.pacman.row * square),
-                                                     (square, square)))
 
     def display_score(self):
         text_one_up = ["tile033.png", "tile021.png", "tile016.png"]
@@ -268,15 +275,12 @@ class Pacman:
     def change_direction(self, new_dir: int):
         self.new_dir = new_dir
 
-    def change_loc(self):
+    def update(self):
         if self.col < 0.5:
             self.col = 27.0
-
         if self.col > 27.0:
-            self.col = 0.5
+            self.col = 0
 
-    def update(self):
-        self.change_loc()
         if self.new_dir == 0:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
                 self.row -= self.speed
