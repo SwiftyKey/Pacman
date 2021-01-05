@@ -80,7 +80,7 @@ class Game:
         self.score = 0
         self.high_score = 0
 
-        self.berry = "tile080.png"
+        self.berry = f"tile08{random.randrange(0, 6)}.png"
         self.berries_collected = []
         self.berry_state = [200, 400, False]
         self.berry_location = [20.0, 13.5]
@@ -92,9 +92,14 @@ class Game:
 
     def check_surroundings(self):
         for ghost in self.ghosts:
-            if self.touching_pacman(ghost.row, ghost.col) and self.lives > 0:
-                reset()
-                print(self.lives)
+            if self.touching_pacman(ghost.row, ghost.col):
+                if self.lives > 1:
+                    reset()
+                    print(self.lives)
+                else:
+                    print("game over")
+                    # self.game_over()
+
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
                                                                           self.berry_state[1]):
