@@ -71,7 +71,7 @@ def pause(time):
 
 class Game:
     def __init__(self):
-        self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5), Clyde(14.0, 13.5), Inky(14.0, 13.5)]
+        self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
 
         self.pacman = Pacman(26.0, 13.5)
         self.points = []
@@ -91,7 +91,11 @@ class Game:
         self.level_timer = 0
 
     def check_surroundings(self):
-        if self.touchingPacman(self.berry_location[0], self.berry_location[1]) \
+        for ghost in self.ghosts:
+            if self.touching_pacman(ghost.row, ghost.col) and self.lives > 0:
+                reset()
+                print(self.lives)
+        if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
                                                                           self.berry_state[1]):
             self.berry_state[2] = True
@@ -99,7 +103,7 @@ class Game:
             self.points.append([self.berry_location[0], self.berry_location[1], self.berry_score, 0])
             self.berries_collected.append(self.berry)
 
-    def touchingPacman(self, row: float, col: float):
+    def touching_pacman(self, row: float, col: float):
         if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
             return True
         elif row + 0.5 >= self.pacman.row >= row and col == self.pacman.col:
@@ -341,7 +345,7 @@ class Ghost:
     def __init__(self, row, col):
         self.row = row
         self.col = col
-        self.speed = 1 / 2
+        self.speed = 1 / 4
         self.image = None
         self.dir = 0
 
@@ -742,6 +746,7 @@ game = Game()
 def reset():
     global game
     game.pacman = Pacman(26.0, 13.5)
+    game.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
     game.lives -= 1
     game.paused = True
     game.render()
