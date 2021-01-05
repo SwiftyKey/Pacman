@@ -71,7 +71,7 @@ def pause(time):
 
 class Game:
     def __init__(self):
-        self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5), Clyde(14.0, 13.5)]
+        self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5), Clyde(14.0, 13.5), Inky(14.0, 13.5)]
 
         self.pacman = Pacman(26.0, 13.5)
         self.points = []
@@ -344,7 +344,6 @@ class Ghost:
         self.speed = 1 / 2
         self.image = None
         self.dir = 0
-        self.new_dir = 0
 
     def update(self):
         self.change_loc()
@@ -486,7 +485,6 @@ class Pinky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 3
-        self.new_dir = 0
 
     def change_direction(self):
         pacman_dir = game.pacman.dir
@@ -574,6 +572,85 @@ class Pinky(Ghost):
                                  square, square))
 
 
+class Inky(Ghost):
+    def __init__(self, row, col):
+        super(Ghost, self).__init__()
+        self.row = row
+        self.col = col
+        self.speed = 1 / 2
+        self.image = None
+        self.dir = 0
+
+    def change_direction(self):
+        vector = [game.pacman.col - game.ghosts[0].col, game.pacman.row - game.ghosts[0].row]
+        pacman_dir = game.pacman.dir
+        if pacman_dir == 0:
+            vector[1] += 1.5
+        elif pacman_dir == 1:
+            vector[1] += 1.5
+        elif pacman_dir == 2:
+            vector[0] -= 1.5
+        elif pacman_dir == 3:
+            vector[0] -= 1.5
+
+        vector = [vector[0] * 2, vector[0] * 2]
+
+        if vector[0] < 0:
+            dir_pacman_hor = 'r'
+        elif vector[0] > 0:
+            dir_pacman_hor = 'l'
+        else:
+            dir_pacman_hor = ''
+
+        if vector[1] < 0:
+            dir_pacman_ver = 'b'
+        elif vector[1] > 0:
+            dir_pacman_ver = 't'
+        else:
+            dir_pacman_ver = ''
+
+        if self.dir % 2 == 0:
+            if dir_pacman_hor == 'r':
+                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                        and 3 != self.dir:
+                    self.dir = 1
+            elif dir_pacman_hor == 'l':
+                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                        and 1 != self.dir:
+                    self.dir = 3
+        else:
+            if dir_pacman_ver == 'b':
+                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 0 != self.dir:
+                    self.dir = 2
+            elif dir_pacman_ver == 't':
+                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                        and 2 != self.dir:
+                    self.dir = 0
+
+    def draw(self):
+        self.image = pygame.image.load(ELEMENT_PATH + "tile136.png")
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+        if self.dir == 0:
+            self.image = pygame.image.load(ELEMENT_PATH + "tile142.png")
+        elif self.dir == 1:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile136.png')
+        elif self.dir == 2:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile138.png')
+        elif self.dir == 3:
+            self.image = pygame.image.load(ELEMENT_PATH + 'tile140.png')
+
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
+
+
 class Clyde(Ghost):
     def __init__(self, row, col):
         super(Ghost, self).__init__()
@@ -581,7 +658,6 @@ class Clyde(Ghost):
         self.col = col
         self.speed = 1 / 2
         self.image = None
-        self.new_dir = 0
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
 
     def change_direction(self):
