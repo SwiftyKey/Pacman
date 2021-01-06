@@ -508,6 +508,7 @@ class Pinky(Ghost):
 
     def change_direction(self):
         pacman_dir = game.pacman.dir
+        vector = tuple()
         if pacman_dir == 0:
             vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
         elif pacman_dir == 1:
@@ -694,33 +695,33 @@ class Clyde(Ghost):
             self.random_choose_direction([0, 2, 3])
 
     def random_choose_direction(self, directions):
-        dir = random.choice(directions)
-        if self.can_move_in_this_dir(dir):
-            self.dir = dir
+        direction = random.choice(directions)
+        if self.can_move_in_this_dir(direction):
+            self.dir = direction
         else:
-            directions.remove(dir)
-            dir = random.choice(directions)
-            if self.can_move_in_this_dir(dir):
-                self.dir = dir
+            directions.remove(direction)
+            direction = random.choice(directions)
+            if self.can_move_in_this_dir(direction):
+                self.dir = direction
             else:
-                directions.remove(dir)
+                directions.remove(direction)
                 if self.can_move_in_this_dir(directions[0]):
                     self.dir = directions[0]
 
-    def can_move_in_this_dir(self, dir):
-        if dir == 0:
+    def can_move_in_this_dir(self, direction):
+        if direction == 0:
             if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 return True
-        elif dir == 1:
+        elif direction == 1:
             if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 return True
-        elif dir == 2:
+        elif direction == 2:
             if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 return True
-        elif dir == 3:
+        elif direction == 3:
             if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 return True
