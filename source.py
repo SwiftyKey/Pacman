@@ -63,6 +63,21 @@ clock = pygame.time.Clock()
 running = True
 
 
+def canMove(row: float, col: float):
+    if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
+        return True
+    return False
+
+
+def reset():
+    global game
+    game.pacman = Pacman(26.0, 13.5)
+    game.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
+    game.lives -= 1
+    game.paused = True
+    game.render()
+
+
 def pause(time):
     cur = 0
     while not cur == time:
@@ -104,15 +119,9 @@ class Game:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 10
-                pygame.draw.rect(screen, (0, 0, 0), ((self.pacman.col * square,
-                                                      self.pacman.row * square),
-                                                     (square, square)))
             elif game_board[int(self.pacman.row)][int(self.pacman.col)] in (5, 6):
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 50
-                pygame.draw.rect(screen, (0, 0, 0), ((self.pacman.col * square,
-                                                      self.pacman.row * square),
-                                                     (square, square)))
 
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
@@ -317,12 +326,13 @@ class Pacman:
 
     # метод для рисования пакман в зависимости от его состояния
     def draw(self):
-        self.image = pygame.image.load(ELEMENT_PATH + "tile112.png")
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
+        if game.is_paused():
+            self.image = pygame.image.load(ELEMENT_PATH + "tile112.png")
+            self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                             int(square * sprite_ratio)))
+            screen.blit(self.image, (self.col * square + sprite_offset,
+                                     self.row * square + sprite_offset,
+                                     square, square))
 
         if self.mouth_change_count == self.mouth_change_delay:
             self.mouth_change_count = 0
@@ -751,23 +761,7 @@ class Clyde(Ghost):
                                  square, square))
 
 
-def canMove(row: float, col: float):
-    if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
-        return True
-    return False
-
-
 game = Game()
-
-
-def reset():
-    global game
-    game.pacman = Pacman(26.0, 13.5)
-    game.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
-    game.lives -= 1
-    game.paused = True
-    game.render()
-
 
 while running:
     for event in pygame.event.get():
