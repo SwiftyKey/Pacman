@@ -63,7 +63,7 @@ clock = pygame.time.Clock()
 running = True
 
 
-def canMove(row: float, col: float):
+def can_move(row: float, col: float):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
         return True
     return False
@@ -344,37 +344,37 @@ class Pacman:
             self.col = 0
 
         if self.new_dir == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
                 self.row -= self.speed
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
                 self.col += self.speed
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 2:
-            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
                 self.row += self.speed
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
                 self.col -= self.speed
                 self.dir = self.new_dir
                 return
 
         if self.dir == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
                 self.row -= self.speed
         elif self.dir == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
                 self.col += self.speed
         elif self.dir == 2:
-            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
                 self.row += self.speed
         elif self.dir == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
                 self.col -= self.speed
 
     # метод для рисования пакман в зависимости от его состояния
@@ -452,38 +452,38 @@ class Ghost:
 
     def turn_in_impasse(self, moved):
         if not moved:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.dir = 0
-            elif canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+            elif can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.dir = 1
-            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+            elif can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.dir = 2
-            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+            elif can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and 1 != self.dir:
                 self.dir = 3
 
     def move(self):
         moved = False
         if self.dir == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.row -= self.speed
                 moved = True
         elif self.dir == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.col += self.speed
                 moved = True
         elif self.dir == 2:
-            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+            if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.row += self.speed
                 moved = True
         elif self.dir == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+            if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 self.col -= self.speed
                 moved = True
@@ -520,20 +520,20 @@ class Blinky(Ghost):
 
         if self.dir % 2 == 0:
             if dir_pacman_hor == 'r':
-                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                         and 3 != self.dir:
                     self.dir = 1
             elif dir_pacman_hor == 'l':
-                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                         and 1 != self.dir:
                     self.dir = 3
         else:
             if dir_pacman_ver == 'b':
-                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                         and 0 != self.dir:
                     self.dir = 2
             elif dir_pacman_ver == 't':
-                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                         and 2 != self.dir:
                     self.dir = 0
 
@@ -596,40 +596,40 @@ class Pinky(Ghost):
             dir_ver = ''
 
         if game.ghosts[0].row == self.row:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.dir = 1
                 return
-            elif canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+            elif can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 self.dir = 3
                 return
         elif game.ghosts[0].col == self.col:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.dir = 0
                 return
-            elif canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+            elif can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.dir = 2
                 return
 
         if self.dir % 2 != 0:
             if dir_ver == 't':
-                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                         and 2 != self.dir:
                     self.dir = 0
             elif dir_ver == 'b':
-                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                         and 0 != self.dir:
                     self.dir = 2
         else:
             if dir_hor == 'l':
-                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                         and 1 != self.dir:
                     self.dir = 3
             elif dir_hor == 'r':
-                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                         and 3 != self.dir:
                     self.dir = 1
 
@@ -695,20 +695,20 @@ class Inky(Ghost):
 
         if self.dir % 2 == 0:
             if dir_pacman_hor == 'r':
-                if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                         and 3 != self.dir:
                     self.dir = 1
             elif dir_pacman_hor == 'l':
-                if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                         and 1 != self.dir:
                     self.dir = 3
         else:
             if dir_pacman_ver == 'b':
-                if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                         and 0 != self.dir:
                     self.dir = 2
             elif dir_pacman_ver == 't':
-                if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                         and 2 != self.dir:
                     self.dir = 0
 
@@ -773,19 +773,19 @@ class Clyde(Ghost):
 
     def can_move_in_this_dir(self, direction):
         if direction == 0:
-            if canMove(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 return True
         elif direction == 1:
-            if canMove(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 return True
         elif direction == 2:
-            if canMove(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+            if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 return True
         elif direction == 3:
-            if canMove(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+            if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 return True
 
