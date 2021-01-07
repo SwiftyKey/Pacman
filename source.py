@@ -110,7 +110,6 @@ class Game:
             if self.touching_pacman(ghost.row, ghost.col):
                 if self.lives > 1:
                     reset()
-                    print(self.lives)
                 else:
                     self.is_game_over = True
                     return
