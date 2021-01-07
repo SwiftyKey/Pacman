@@ -89,7 +89,6 @@ class Game:
         self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
 
         self.pacman = Pacman(26.0, 13.5)
-        self.points = []
         self.lives = 3
 
         self.score = 0
@@ -129,7 +128,6 @@ class Game:
                                                                           self.berry_state[1]):
             self.berry_state[2] = True
             self.score += self.berry_score
-            self.points.append([self.berry_location[0], self.berry_location[1], self.berry_score, 0])
             self.berries_collected.append(self.berry)
 
     def touching_pacman(self, row: float, col: float):
