@@ -430,6 +430,7 @@ class Ghost:
         self.active = False
 
     def update(self):
+        self.change_active()
         if self.active:
             self.change_loc()
             self.change_direction()
@@ -493,6 +494,9 @@ class Ghost:
         self.turn_in_impasse(moved)
 
         return moved
+
+    def change_active(self):
+        pass
 
 
 class Blinky(Ghost):
@@ -572,6 +576,9 @@ class Pinky(Ghost):
         self.image = None
         self.dir = 3
         self.active = False
+
+    def change_active(self):
+        self.active = True
 
     def change_direction(self):
         pacman_dir = game.pacman.dir
@@ -670,6 +677,9 @@ class Inky(Ghost):
         self.dir = 0
         self.active = False
 
+    def change_active(self):
+        pass
+
     def change_direction(self):
         vector = [game.pacman.col - game.ghosts[0].col, game.pacman.row - game.ghosts[0].row]
         pacman_dir = game.pacman.dir
@@ -749,6 +759,9 @@ class Clyde(Ghost):
         self.image = None
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
         self.active = False
+
+    def change_active(self):
+        pass
 
     def change_direction(self):
         if self.dir == 0:
