@@ -90,6 +90,7 @@ class Game:
 
         self.pacman = Pacman(26.0, 13.5)
         self.lives = 3
+        self.points = 0
 
         self.score = 0
         self.high_score = 0
@@ -118,9 +119,11 @@ class Game:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 10
+                self.points += 1
             elif game_board[int(self.pacman.row)][int(self.pacman.col)] in (5, 6):
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 50
+                self.points += 5
 
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
@@ -242,6 +245,9 @@ class Game:
                 int(square * sprite_ratio), int(square * sprite_ratio)))
             screen.blit(image, (
                 self.berry_location[1] * square, self.berry_location[0] * square, square, square))
+
+    def get_points(self):
+        return self.points
 
     def get_high_score(self):
         file = open(DATA_PATH + "high_score.txt", "r")
