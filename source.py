@@ -132,6 +132,10 @@ class Game:
             self.score += self.berry_score
             self.berries_collected.append(self.berry)
 
+        if self.score > self.high_score:
+            self.high_score = self.score
+            self.record_high_score()
+
     def touching_pacman(self, row: float, col: float):
         if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
             return True
@@ -266,7 +270,7 @@ class Game:
         file.close()
 
     def record_high_score(self):
-        file = open(DATA_PATH + "HighScore.txt", "w+")
+        file = open(DATA_PATH + "high_score.txt", "w+")
         file.write(str(self.high_score))
         file.close()
 
