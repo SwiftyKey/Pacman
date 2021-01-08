@@ -424,18 +424,20 @@ class Ghost:
     def __init__(self, row, col):
         self.row = row
         self.col = col
-        self.speed = 1 / 4
+        self.speed = 1 / 2
         self.image = None
         self.dir = 0
+        self.active = False
 
     def update(self):
-        self.change_loc()
-        self.change_direction()
+        if self.active:
+            self.change_loc()
+            self.change_direction()
 
-        if self.move():
-            return
+            if self.move():
+                return
 
-        self.move()
+            self.move()
 
     def draw(self):
         pass
@@ -501,6 +503,7 @@ class Blinky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.active = True
 
     def change_direction(self):
         vector = (self.col - game.pacman.col, self.row - game.pacman.row)
@@ -568,6 +571,7 @@ class Pinky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 3
+        self.active = False
 
     def change_direction(self):
         pacman_dir = game.pacman.dir
@@ -664,6 +668,7 @@ class Inky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 0
+        self.active = False
 
     def change_direction(self):
         vector = [game.pacman.col - game.ghosts[0].col, game.pacman.row - game.ghosts[0].row]
@@ -677,7 +682,7 @@ class Inky(Ghost):
         elif pacman_dir == 3:
             vector[0] -= 1.0
 
-        vector = [vector[0] * 2, vector[0] * 2]
+        vector = [vector[0] * 2 + game.ghosts[0].col, vector[0] * 2 + game.ghosts[0].row]
 
         if vector[0] < 0:
             dir_pacman_hor = 'r'
@@ -743,6 +748,7 @@ class Clyde(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.active = False
 
     def change_direction(self):
         if self.dir == 0:
