@@ -120,7 +120,7 @@ class Game:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 10
                 self.points += 1
-            elif game_board[int(self.pacman.row)][int(self.pacman.col)] in (5, 6):
+            elif game_board[int(self.pacman.row)][int(self.pacman.col)] == 6:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 50
                 self.points += 5
@@ -135,6 +135,10 @@ class Game:
         if self.score > self.high_score:
             self.high_score = self.score
             self.record_high_score()
+
+        if self.points == 260:
+            # self.win
+            pass
 
     def touching_pacman(self, row: float, col: float):
         if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
@@ -261,8 +265,8 @@ class Game:
             screen.blit(image, (
                 self.berry_location[1] * square, self.berry_location[0] * square, square, square))
 
-    def get_points(self):
-        return self.points
+    def get_score(self):
+        return self.score
 
     def get_high_score(self):
         file = open(DATA_PATH + "high_score.txt", "r")
