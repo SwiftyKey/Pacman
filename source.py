@@ -172,6 +172,7 @@ class Game:
         self.game_over_counter += 1
 
     def update(self):
+        self.display_lives()
         if self.is_game_over:
             self.game_over()
             return
@@ -237,6 +238,16 @@ class Game:
             screen.blit(image, (
                 (berry[1] - (2 * i)) * square, berry[0] * square + 5, square, square))
 
+    def display_lives(self):
+        location = [[34, 1], [34, 3]]
+        for i in range(self.lives - 1):
+            image = pygame.image.load(ELEMENT_PATH + "tile054.png")
+            image = pygame.transform.scale(image, (int(square * sprite_ratio),
+                                                   int(square * sprite_ratio)))
+            screen.blit(image, (location[i][1] * square,
+                                location[i][0] * square - sprite_offset,
+                                square, square))
+
     def draw_berry(self):
         if self.level_timer in range(self.berry_state[0], self.berry_state[1]) \
                 and not self.berry_state[2]:
@@ -291,9 +302,11 @@ class Game:
                                            (j * square + square // 2, i * square + square // 2),
                                            square // 2)
 
-    @staticmethod
-    def render():
+    def render(self):
         screen.fill((0, 0, 0))
+
+        self.display_score()
+        self.display_lives()
 
         current_tile = 0
         for i in range(3, len(game_board) - 2):
