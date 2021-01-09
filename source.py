@@ -119,7 +119,6 @@ class Game:
                         return
                 else:
                     ghost.die()
-                    print(f"dead {ghost.__class__.__name__}")
 
         if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
@@ -191,19 +190,23 @@ class Game:
         self.game_over_counter += 1
 
     def update(self):
-        self.display_lives()
         if self.is_game_over:
             self.game_over()
             return
-        self.pacman.update()
-        self.pacman.draw()
-        for ghost in self.ghosts:
-            ghost.update()
-            ghost.draw()
+
+        self.display_lives()
         self.display_score()
         self.display_collected_berries()
         self.draw_berry()
         self.check_surroundings()
+
+        self.pacman.update()
+        self.pacman.draw()
+
+        for ghost in self.ghosts:
+            ghost.update()
+            ghost.draw()
+
         self.level_timer += 1
 
     def display_score(self):
@@ -315,10 +318,6 @@ class Game:
                         pygame.draw.circle(screen, pellet_color,
                                            (j * square + square // 2, i * square + square // 2),
                                            square // 4)
-                    elif game_board[i][j] == 5:
-                        pygame.draw.circle(screen, (0, 0, 0),
-                                           (j * square + square // 2, i * square + square // 2),
-                                           square // 2)
                     elif game_board[i][j] == 6:
                         pygame.draw.circle(screen, pellet_color,
                                            (j * square + square // 2, i * square + square // 2),
@@ -350,10 +349,6 @@ class Game:
                     pygame.draw.circle(screen, pellet_color,
                                        (j * square + square // 2, i * square + square // 2),
                                        square // 4)
-                elif game_board[i][j] == 5:
-                    pygame.draw.circle(screen, (0, 0, 0),
-                                       (j * square + square // 2, i * square + square // 2),
-                                       square // 2)
                 elif game_board[i][j] == 6:
                     pygame.draw.circle(screen, pellet_color,
                                        (j * square + square // 2, i * square + square // 2),
