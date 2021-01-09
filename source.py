@@ -86,7 +86,7 @@ def pause(time):
 
 class Game:
     def __init__(self):
-        #self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
+        # self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
         self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5), Clyde(14.0, 13.5), Inky(14.0, 13.5)]
 
         self.pacman = Pacman(26.0, 13.5)
@@ -452,6 +452,14 @@ class Pacman:
 
 
 class Ghost:
+    SPRITES = []
+    SPRITES_DEAD = [pygame.image.load(ELEMENT_PATH + "tile158.png"),
+                    pygame.image.load(ELEMENT_PATH + "tile152.png"),
+                    pygame.image.load(ELEMENT_PATH + "tile154.png"),
+                    pygame.image.load(ELEMENT_PATH + "tile156.png")]
+
+    SPRITE_FRIGHTENED = pygame.image.load(ELEMENT_PATH + "tile072.png")
+
     def __init__(self, row, col):
         self.row = row
         self.col = col
@@ -474,6 +482,9 @@ class Ghost:
 
             self.move()
 
+    def change_dead(self):
+        self.is_die = not self.is_die
+
     def change_active_scatter(self):
         self.active_scatter = True
         self.active_frightened = False
@@ -485,22 +496,51 @@ class Ghost:
     def die(self):
         self.is_die = True
 
-    def draw_if_die(self):
-        if self.dir == 0:
-            self.image = pygame.image.load(ELEMENT_PATH + "tile158.png")
-        elif self.dir == 1:
-            self.image = pygame.image.load(ELEMENT_PATH + 'tile152.png')
-        elif self.dir == 2:
-            self.image = pygame.image.load(ELEMENT_PATH + 'tile154.png')
-        elif self.dir == 3:
-            self.image = pygame.image.load(ELEMENT_PATH + 'tile156.png')
+    def transform_sprite(self):
+        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
+                                                         int(square * sprite_ratio)))
+        screen.blit(self.image, (self.col * square + sprite_offset,
+                                 self.row * square + sprite_offset,
+                                 square, square))
 
     def change_active_frightened(self):
         self.active_frightened = True
         self.active_scatter = False
 
     def draw(self):
-        pass
+        if not self.is_die and not self.active_frightened:
+            self.image = self.SPRITES[0]
+            self.transform_sprite()
+            if not self.active_frightened:
+                if self.dir == 0:
+                    self.image = self.SPRITES[0]
+                elif self.dir == 1:
+                    self.image = self.SPRITES[1]
+                elif self.dir == 2:
+                    self.image = self.SPRITES[2]
+                elif self.dir == 3:
+                    self.image = self.SPRITES[3]
+
+            self.transform_sprite()
+
+        elif self.active_frightened:
+            self.image = self.SPRITE_FRIGHTENED
+            self.transform_sprite()
+
+        elif self.is_die:
+            self.image = self.SPRITES_DEAD[0]
+            self.transform_sprite()
+
+            if self.dir == 0:
+                self.image = self.SPRITES_DEAD[0]
+            elif self.dir == 1:
+                self.image = self.SPRITES_DEAD[1]
+            elif self.dir == 2:
+                self.image = self.SPRITES_DEAD[2]
+            elif self.dir == 3:
+                self.image = self.SPRITES_DEAD[3]
+
+            self.transform_sprite()
 
     def change_direction(self):
         pass
@@ -609,6 +649,11 @@ class Ghost:
 
 
 class Blinky(Ghost):
+    SPRITES = [pygame.image.load(ELEMENT_PATH + "tile102.png"),
+               pygame.image.load(ELEMENT_PATH + "tile096.png"),
+               pygame.image.load(ELEMENT_PATH + "tile098.png"),
+               pygame.image.load(ELEMENT_PATH + "tile100.png")]
+
     def __init__(self, row, col):
         super(Ghost, self).__init__()
         self.row = row
@@ -616,17 +661,21 @@ class Blinky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
-        self.is_die = True
+        self.is_die = False
         self.active = True
         self.active_scatter = False
         self.active_frightened = False
 
     def change_direction(self):
         if not self.active_frightened:
-            if not self.active_scatter:
+            if not self.active_scatter and not self.is_die:
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
-            else:
+
+            elif self.active_scatter:
                 vector = (self.col - 26.0, self.row - 6.0)
+
+            elif self.is_die:
+                vector = (self.col - 14.0, self.row - 13.5)
 
             if vector[0] < 0:
                 dir_pacman_hor = 'r'
@@ -663,36 +712,13 @@ class Blinky(Ghost):
         else:
             self.choose_direction_in_frightened()
 
-    def draw(self):
-        self.image = pygame.image.load(ELEMENT_PATH + "tile096.png")
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-        if not self.is_die:
-            if not self.active_frightened:
-                if self.dir == 0:
-                    self.image = pygame.image.load(ELEMENT_PATH + "tile102.png")
-                elif self.dir == 1:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile096.png')
-                elif self.dir == 2:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile098.png')
-                elif self.dir == 3:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile100.png')
-            else:
-                self.draw_if_frightened()
-        else:
-            self.draw_if_die()
-
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-
 
 class Pinky(Ghost):
+    SPRITES = [pygame.image.load(ELEMENT_PATH + "tile134.png"),
+               pygame.image.load(ELEMENT_PATH + "tile128.png"),
+               pygame.image.load(ELEMENT_PATH + "tile130.png"),
+               pygame.image.load(ELEMENT_PATH + "tile132.png")]
+
     def __init__(self, row, col):
         super(Ghost, self).__init__()
         self.row = row
@@ -712,7 +738,7 @@ class Pinky(Ghost):
         if not self.active_frightened:
             pacman_dir = game.pacman.dir
             vector = tuple()
-            if not self.active_scatter:
+            if not self.active_scatter and not self.is_die:
                 if pacman_dir == 0:
                     vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
                 elif pacman_dir == 1:
@@ -721,8 +747,10 @@ class Pinky(Ghost):
                     vector = (self.col - game.pacman.col, self.row - game.pacman.row - 2.5)
                 elif pacman_dir == 3:
                     vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
-            else:
+            elif self.active_scatter:
                 vector = (self.col - 4.0, self.row - 6.0)
+            elif self.is_die:
+                vector = (self.col - 13.5, self.row - 17.0)
 
             if vector[0] < 0:
                 dir_hor = 'r'
@@ -778,36 +806,13 @@ class Pinky(Ghost):
         else:
             self.choose_direction_in_frightened()
 
-    def draw(self):
-        self.image = pygame.image.load(ELEMENT_PATH + "tile128.png")
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-        if not self.is_die:
-            if not self.active_frightened:
-                if self.dir == 0:
-                    self.image = pygame.image.load(ELEMENT_PATH + "tile134.png")
-                elif self.dir == 1:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile129.png')
-                elif self.dir == 2:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile130.png')
-                elif self.dir == 3:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile133.png')
-            else:
-                self.draw_if_frightened()
-        else:
-            self.draw_if_die()
-
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-
 
 class Inky(Ghost):
+    SPRITES = [pygame.image.load(ELEMENT_PATH + "tile142.png"),
+               pygame.image.load(ELEMENT_PATH + "tile136.png"),
+               pygame.image.load(ELEMENT_PATH + "tile138.png"),
+               pygame.image.load(ELEMENT_PATH + "tile140.png")]
+
     def __init__(self, row, col):
         super(Ghost, self).__init__()
         self.row = row
@@ -826,7 +831,7 @@ class Inky(Ghost):
 
     def change_direction(self):
         if not self.active_frightened:
-            if not self.active_scatter:
+            if not self.active_scatter and not self.is_die:
                 vector = [game.ghosts[0].col - game.pacman.col, game.ghosts[0].row - game.pacman.row]
                 pacman_dir = game.pacman.dir
                 if pacman_dir == 0:
@@ -839,8 +844,10 @@ class Inky(Ghost):
                     vector[0] -= 1.0
 
                 vector = [vector[0] * 2 + game.ghosts[0].col, vector[0] * 2 + game.ghosts[0].row]
-            else:
+            elif self.active_scatter:
                 vector = [self.col - 7.0, self.row - 30.0]
+            elif self.is_die:
+                vector = [self.col - 11.5, self.row - 17.0]
 
             if vector[0] < 0:
                 dir_pacman_hor = 'r'
@@ -877,37 +884,13 @@ class Inky(Ghost):
         else:
             self.choose_direction_in_frightened()
 
-    def draw(self):
-        self.image = pygame.image.load(ELEMENT_PATH + "tile136.png")
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-
-        if not self.is_die:
-            if not self.active_frightened:
-                if self.dir == 0:
-                    self.image = pygame.image.load(ELEMENT_PATH + "tile142.png")
-                elif self.dir == 1:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile136.png')
-                elif self.dir == 2:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile138.png')
-                elif self.dir == 3:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile140.png')
-            else:
-                self.draw_if_frightened()
-        else:
-            self.draw_if_die()
-
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-
 
 class Clyde(Ghost):
+    SPRITES = [pygame.image.load(ELEMENT_PATH + "tile150.png"),
+               pygame.image.load(ELEMENT_PATH + "tile144.png"),
+               pygame.image.load(ELEMENT_PATH + "tile146.png"),
+               pygame.image.load(ELEMENT_PATH + "tile148.png")]
+
     def __init__(self, row, col):
         super(Ghost, self).__init__()
         self.row = row
@@ -926,7 +909,7 @@ class Clyde(Ghost):
 
     def change_direction(self):
         if not self.active_frightened:
-            if not self.active_scatter:
+            if not self.active_scatter and not self.is_die:
                 if self.dir == 0:
                     self.random_choose_direction([0, 1, 3])
 
@@ -939,8 +922,11 @@ class Clyde(Ghost):
                 elif self.dir == 3:
                     self.random_choose_direction([0, 2, 3])
 
-            else:
-                vector = [self.col - 19.0, self.row - 30.0]
+            elif self.active_scatter:
+                vector = (self.col - 19.0, self.row - 30.0)
+
+            elif self.is_die:
+                vector = (self.col - 15.5, self.row - 17.0)
 
                 if vector[0] < 0:
                     dir_pacman_hor = 'r'
@@ -958,54 +944,28 @@ class Clyde(Ghost):
 
                 if self.dir % 2 == 0:
                     if dir_pacman_hor == 'r':
-                        if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                        if can_move(self.row,
+                                    math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
                                 and 3 != self.dir:
                             self.dir = 1
                     elif dir_pacman_hor == 'l':
-                        if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                        if can_move(self.row,
+                                    math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                                 and 1 != self.dir:
                             self.dir = 3
                 else:
                     if dir_pacman_ver == 'b':
-                        if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
+                        if can_move(math.ceil(self.row + self.speed),
+                                    self.col) and self.col % 1.0 == 0 \
                                 and 0 != self.dir:
                             self.dir = 2
                     elif dir_pacman_ver == 't':
-                        if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
+                        if can_move(math.floor(self.row - self.speed),
+                                    self.col) and self.col % 1.0 == 0 \
                                 and 2 != self.dir:
                             self.dir = 0
         else:
             self.choose_direction_in_frightened()
-
-    def draw(self):
-        self.image = pygame.image.load(ELEMENT_PATH + "tile144.png")
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
-
-        if not self.is_die:
-            if not self.active_frightened:
-                if self.dir == 0:
-                    self.image = pygame.image.load(ELEMENT_PATH + "tile150.png")
-                elif self.dir == 1:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile144.png')
-                elif self.dir == 2:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile147.png')
-                elif self.dir == 3:
-                    self.image = pygame.image.load(ELEMENT_PATH + 'tile148.png')
-            else:
-                self.draw_if_frightened()
-
-        else:
-            self.draw_if_die()
-
-        self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
-                                                         int(square * sprite_ratio)))
-        screen.blit(self.image, (self.col * square + sprite_offset,
-                                 self.row * square + sprite_offset,
-                                 square, square))
 
 
 game = Game()
