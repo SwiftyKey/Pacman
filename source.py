@@ -478,6 +478,7 @@ class Ghost:
         self.active_frightened = False  # испуг
 
     def update(self):
+        self.stop()
         self.change_active()
         if self.active:
             self.change_loc()
@@ -586,6 +587,10 @@ class Ghost:
                     and 1 != self.dir:
                 self.dir = 3
 
+    def stop(self):
+        if 17.0 < self.row < 18.0 and 11.0 < self.col < 16.0:
+            self.active = False
+
     def random_choose_direction(self, directions):
         direction = random.choice(directions)
         if self.can_move_in_this_dir(direction):
@@ -680,7 +685,6 @@ class Blinky(Ghost):
 
             elif self.is_die:
                 vector = (self.col - 13.5, self.row - 17.0)
-
             elif self.active_scatter:
                 vector = (self.col - 26.0, self.row - 6.0)
 
@@ -757,7 +761,6 @@ class Pinky(Ghost):
 
             if self.is_die:
                 vector = (self.col - 13.5, self.row - 17.0)
-
             if self.active_scatter:
                 vector = (self.col - 4.0, self.row - 6.0)
 
@@ -861,7 +864,6 @@ class Inky(Ghost):
 
             elif self.is_die:
                 vector = [self.col - 13.5, self.row - 17.0]
-
             elif self.active_scatter:
                 vector = [self.col - 7.0, self.row - 30.0]
 
