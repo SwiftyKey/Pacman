@@ -510,6 +510,8 @@ class Ghost:
 
     def die(self):
         self.is_die = True
+        self.active_scatter = False
+        self.active_frightened = False
 
     def transform_sprite(self):
         self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
@@ -758,10 +760,10 @@ class Pinky(Ghost):
                 elif pacman_dir == 3:
                     vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
 
-            elif self.is_die:
+            if self.is_die:
                 vector = (self.col - 13.5, self.row - 17.0)
 
-            elif self.active_scatter:
+            if self.active_scatter:
                 vector = (self.col - 4.0, self.row - 6.0)
 
             if vector[0] < 0:
@@ -802,19 +804,23 @@ class Pinky(Ghost):
                     if can_move(math.floor(self.row - self.speed), self.col) \
                             and self.col % 1.0 == 0 and 2 != self.dir:
                         self.dir = 0
+                        return
                 elif dir_ver == 'b':
                     if can_move(math.ceil(self.row + self.speed), self.col) \
                             and self.col % 1.0 == 0 and 0 != self.dir:
                         self.dir = 2
+                        return
             else:
                 if dir_hor == 'l':
                     if can_move(self.row, math.floor(self.col - self.speed)) \
                             and self.row % 1.0 == 0 and 1 != self.dir:
                         self.dir = 3
+                        return
                 elif dir_hor == 'r':
                     if can_move(self.row, math.ceil(self.col + self.speed)) \
                             and self.row % 1.0 == 0 and 3 != self.dir:
                         self.dir = 1
+                        return
         else:
             self.choose_direction_in_frightened()
 
