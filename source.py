@@ -938,45 +938,45 @@ class Clyde(Ghost):
             elif self.is_die:
                 vector = (self.col - 15.5, self.row - 17.0)
 
-            else self.active_scatter:
+            elif self.active_scatter:
                 vector = (self.col - 19.0, self.row - 30.0)
 
-                if vector[0] < 0:
-                    dir_pacman_hor = 'r'
-                elif vector[0] > 0:
-                    dir_pacman_hor = 'l'
-                else:
-                    dir_pacman_hor = ''
+            if vector[0] < 0:
+                dir_pacman_hor = 'r'
+            elif vector[0] > 0:
+                dir_pacman_hor = 'l'
+            else:
+                dir_pacman_hor = ''
 
-                if vector[1] < 0:
-                    dir_pacman_ver = 'b'
-                elif vector[1] > 0:
-                    dir_pacman_ver = 't'
-                else:
-                    dir_pacman_ver = ''
+            if vector[1] < 0:
+                dir_pacman_ver = 'b'
+            elif vector[1] > 0:
+                dir_pacman_ver = 't'
+            else:
+                dir_pacman_ver = ''
 
-                if self.dir % 2 == 0:
-                    if dir_pacman_hor == 'r':
-                        if can_move(self.row,
-                                    math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                                and 3 != self.dir:
-                            self.dir = 1
-                    elif dir_pacman_hor == 'l':
-                        if can_move(self.row,
-                                    math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
-                                and 1 != self.dir:
-                            self.dir = 3
-                else:
-                    if dir_pacman_ver == 'b':
-                        if can_move(math.ceil(self.row + self.speed),
-                                    self.col) and self.col % 1.0 == 0 \
-                                and 0 != self.dir:
-                            self.dir = 2
-                    elif dir_pacman_ver == 't':
-                        if can_move(math.floor(self.row - self.speed),
-                                    self.col) and self.col % 1.0 == 0 \
-                                and 2 != self.dir:
-                            self.dir = 0
+            if self.dir % 2 == 0:
+                if dir_pacman_hor == 'r':
+                    if can_move(self.row,
+                                math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                            and 3 != self.dir:
+                        self.dir = 1
+                elif dir_pacman_hor == 'l':
+                    if can_move(self.row,
+                                math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                            and 1 != self.dir:
+                        self.dir = 3
+            else:
+                if dir_pacman_ver == 'b':
+                    if can_move(math.ceil(self.row + self.speed),
+                                self.col) and self.col % 1.0 == 0 \
+                            and 0 != self.dir:
+                        self.dir = 2
+                elif dir_pacman_ver == 't':
+                    if can_move(math.floor(self.row - self.speed),
+                                self.col) and self.col % 1.0 == 0 \
+                            and 2 != self.dir:
+                        self.dir = 0
         else:
             self.choose_direction_in_frightened()
 
