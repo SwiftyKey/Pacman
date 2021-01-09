@@ -378,6 +378,7 @@ class Pacman:
         self.new_dir = new_dir
 
     def update(self):
+        print(self.col, self.row)
         if self.col < 0.5:
             self.col = 27.0
         if self.col > 27.0:
