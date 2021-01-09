@@ -446,13 +446,11 @@ class Ghost:
         self.speed = 1 / 2
         self.image = None
         self.dir = 0
-        self.is_die = False
         self.active = False
         self.active_scatter = False  # рассеивание
         self.active_frightened = False  # испуг
 
     def update(self):
-        self.stop()
         self.change_active()
         if self.active:
             self.change_loc()
@@ -475,11 +473,6 @@ class Ghost:
         self.active_scatter = False
 
     def change_activities(self):
-        self.active_scatter = False
-        self.active_frightened = False
-
-    def die(self):
-        self.is_die = True
         self.active_scatter = False
         self.active_frightened = False
 
@@ -560,10 +553,6 @@ class Ghost:
             elif can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
                     and 1 != self.dir:
                 self.dir = 3
-
-    def stop(self):
-        if 17.0 < self.row < 18.0 and 11.0 < self.col < 16.0:
-            self.active = False
 
     def random_choose_direction(self, directions):
         direction = random.choice(directions)
@@ -646,7 +635,6 @@ class Blinky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
-        self.is_die = False
         self.active = True
         self.active_scatter = False
         self.active_frightened = False
@@ -657,8 +645,6 @@ class Blinky(Ghost):
             if not self.active_scatter and not self.is_die:
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
 
-            elif self.is_die:
-                vector = (self.col - 13.5, self.row - 17.0)
             elif self.active_scatter:
                 vector = (self.col - 26.0, self.row - 6.0)
 
@@ -711,7 +697,6 @@ class Pinky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 3
-        self.is_die = False
         self.active = False
         self.active_scatter = False
         self.active_frightened = False
@@ -723,7 +708,7 @@ class Pinky(Ghost):
         if not self.active_frightened:
             pacman_dir = game.pacman.dir
             vector = tuple()
-            if not self.active_scatter and not self.is_die:
+            if not self.active_scatter:
                 if pacman_dir == 0:
                     vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
                 elif pacman_dir == 1:
@@ -733,8 +718,6 @@ class Pinky(Ghost):
                 elif pacman_dir == 3:
                     vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
 
-            if self.is_die:
-                vector = (self.col - 13.5, self.row - 17.0)
             if self.active_scatter:
                 vector = (self.col - 4.0, self.row - 6.0)
 
@@ -810,7 +793,6 @@ class Inky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 0
-        self.is_die = False
         self.active = False
         self.active_scatter = False
         self.active_frightened = False
@@ -822,7 +804,7 @@ class Inky(Ghost):
     def change_direction(self):
         vector = tuple()
         if not self.active_frightened:
-            if not self.active_scatter and not self.is_die:
+            if not self.active_scatter:
                 vector = [game.ghosts[0].col - game.pacman.col, game.ghosts[0].row - game.pacman.row]
                 pacman_dir = game.pacman.dir
                 if pacman_dir == 0:
@@ -836,8 +818,6 @@ class Inky(Ghost):
 
                 vector = [vector[0] * 2 + game.ghosts[0].col, vector[0] * 2 + game.ghosts[0].row]
 
-            elif self.is_die:
-                vector = [self.col - 13.5, self.row - 17.0]
             elif self.active_scatter:
                 vector = [self.col - 7.0, self.row - 30.0]
 
@@ -890,7 +870,6 @@ class Clyde(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 1  # 0: вверх, 1: вправо, 2: вниз, 3: влево
-        self.is_die = False
         self.active = False
         self.active_scatter = False
         self.active_frightened = False
@@ -902,7 +881,7 @@ class Clyde(Ghost):
     def change_direction(self):
         vector = tuple()
         if not self.active_frightened:
-            if not self.active_scatter and not self.is_die:
+            if not self.active_scatter:
                 if self.dir == 0:
                     self.random_choose_direction([0, 1, 3])
 
@@ -914,9 +893,6 @@ class Clyde(Ghost):
 
                 elif self.dir == 3:
                     self.random_choose_direction([0, 2, 3])
-
-            elif self.is_die:
-                vector = (self.col - 15.5, self.row - 17.0)
 
             elif self.active_scatter:
                 vector = (self.col - 19.0, self.row - 30.0)
