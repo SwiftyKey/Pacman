@@ -64,7 +64,8 @@ running = True
 
 
 def can_move(row: float, col: float):
-    if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3:
+    if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3 or \
+            int(row) == 15 and int(col) in (13, 14):
         return True
     return False
 
@@ -86,9 +87,9 @@ def pause(time):
 
 class Game:
     def __init__(self):
-        # self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
-        self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5), Clyde(14.0, 13.5), Inky(14.0, 13.5)]
+        self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
         self.ghosts_frightened = False
+        self.ghost_deaths = 0
 
         self.pacman = Pacman(26.0, 13.5)
         self.lives = 3
@@ -110,7 +111,7 @@ class Game:
 
     def check_surroundings(self):
         for ghost in self.ghosts:
-            if self.touching_pacman(ghost.row, ghost.col):
+            if self.touching_pacman(ghost.row, ghost.col) and not ghost.is_die:
                 if not self.ghosts_frightened:
                     if self.lives > 1:
                         reset()
@@ -119,6 +120,9 @@ class Game:
                         return
                 else:
                     ghost.die()
+                    ghost.speed = 1 / 2
+                    self.ghost_deaths += 1
+                    self.score += 200 if self.ghost_deaths == 1 else 400
 
         if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
@@ -175,8 +179,6 @@ class Game:
             running = False
             self.record_high_score()
             return
-
-        self.draw_tiles_around(self.pacman.row, self.pacman.col)
 
         pacman_image = pygame.image.load(ELEMENT_PATH + "tile" +
                                          str(116 + self.game_over_counter) + ".png")
@@ -294,34 +296,6 @@ class Game:
         file = open(DATA_PATH + "high_score.txt", "w+")
         file.write(str(self.high_score))
         file.close()
-
-    @staticmethod
-    def draw_tiles_around(row: float, col: float):
-        row = math.floor(row)
-        col = math.floor(col)
-        for i in range(row - 2, row + 3):
-            for j in range(col - 2, col + 3):
-                if 3 <= i < len(game_board) - 2 and 0 <= j < len(game_board[0]):
-                    image_name = str(((i - 3) * len(game_board[0])) + j)
-                    if len(image_name) == 1:
-                        image_name = "00" + image_name
-                    elif len(image_name) == 2:
-                        image_name = "0" + image_name
-
-                    image_name = "tile" + image_name + ".png"
-                    tile_image = pygame.image.load(BOARD_PATH + image_name)
-                    tile_image = pygame.transform.scale(tile_image, (square, square))
-
-                    screen.blit(tile_image, (j * square, i * square, square, square))
-
-                    if game_board[i][j] == 2:
-                        pygame.draw.circle(screen, pellet_color,
-                                           (j * square + square // 2, i * square + square // 2),
-                                           square // 4)
-                    elif game_board[i][j] == 6:
-                        pygame.draw.circle(screen, pellet_color,
-                                           (j * square + square // 2, i * square + square // 2),
-                                           square // 2)
 
     def render(self):
         screen.fill((0, 0, 0))
