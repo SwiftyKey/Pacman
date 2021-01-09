@@ -671,11 +671,11 @@ class Blinky(Ghost):
             if not self.active_scatter and not self.is_die:
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
 
+            elif self.is_die:
+                vector = (self.col - 13.5, self.row - 17.0)
+
             elif self.active_scatter:
                 vector = (self.col - 26.0, self.row - 6.0)
-
-            elif self.is_die:
-                vector = (self.col - 14.0, self.row - 13.5)
 
             if vector[0] < 0:
                 dir_pacman_hor = 'r'
@@ -747,10 +747,12 @@ class Pinky(Ghost):
                     vector = (self.col - game.pacman.col, self.row - game.pacman.row - 2.5)
                 elif pacman_dir == 3:
                     vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
-            elif self.active_scatter:
-                vector = (self.col - 4.0, self.row - 6.0)
+
             elif self.is_die:
                 vector = (self.col - 13.5, self.row - 17.0)
+
+            elif self.active_scatter:
+                vector = (self.col - 4.0, self.row - 6.0)
 
             if vector[0] < 0:
                 dir_hor = 'r'
@@ -844,10 +846,12 @@ class Inky(Ghost):
                     vector[0] -= 1.0
 
                 vector = [vector[0] * 2 + game.ghosts[0].col, vector[0] * 2 + game.ghosts[0].row]
+
+            elif self.is_die:
+                vector = [self.col - 13.5, self.row - 17.0]
+
             elif self.active_scatter:
                 vector = [self.col - 7.0, self.row - 30.0]
-            elif self.is_die:
-                vector = [self.col - 11.5, self.row - 17.0]
 
             if vector[0] < 0:
                 dir_pacman_hor = 'r'
@@ -922,11 +926,11 @@ class Clyde(Ghost):
                 elif self.dir == 3:
                     self.random_choose_direction([0, 2, 3])
 
-            elif self.active_scatter:
-                vector = (self.col - 19.0, self.row - 30.0)
-
             elif self.is_die:
                 vector = (self.col - 15.5, self.row - 17.0)
+
+            else self.active_scatter:
+                vector = (self.col - 19.0, self.row - 30.0)
 
                 if vector[0] < 0:
                     dir_pacman_hor = 'r'
