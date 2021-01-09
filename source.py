@@ -426,10 +426,6 @@ class Pacman:
 
 class Ghost:
     SPRITES = []
-    SPRITES_DEAD = [pygame.image.load(ELEMENT_PATH + "tile158.png"),
-                    pygame.image.load(ELEMENT_PATH + "tile152.png"),
-                    pygame.image.load(ELEMENT_PATH + "tile154.png"),
-                    pygame.image.load(ELEMENT_PATH + "tile156.png")]
 
     SPRITE_FRIGHTENED = pygame.image.load(ELEMENT_PATH + "tile072.png")
 
@@ -474,7 +470,7 @@ class Ghost:
                                  square, square))
 
     def draw(self):
-        if not self.is_die and not self.active_frightened:
+        if not self.active_frightened:
             self.image = self.SPRITES[0]
             self.transform_sprite()
             if not self.active_frightened:
@@ -486,20 +482,6 @@ class Ghost:
                     self.image = self.SPRITES[2]
                 elif self.dir == 3:
                     self.image = self.SPRITES[3]
-
-            self.transform_sprite()
-        if self.is_die:
-            self.image = self.SPRITES_DEAD[0]
-            self.transform_sprite()
-
-            if self.dir == 0:
-                self.image = self.SPRITES_DEAD[0]
-            elif self.dir == 1:
-                self.image = self.SPRITES_DEAD[1]
-            elif self.dir == 2:
-                self.image = self.SPRITES_DEAD[2]
-            elif self.dir == 3:
-                self.image = self.SPRITES_DEAD[3]
 
             self.transform_sprite()
         elif self.active_frightened:
