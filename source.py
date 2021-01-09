@@ -454,9 +454,6 @@ class Ghost:
 
             self.move()
 
-    def change_dead(self):
-        self.is_die = not self.is_die
-
     def change_active_scatter(self):
         self.active_scatter = True
         self.active_frightened = False
@@ -635,7 +632,7 @@ class Blinky(Ghost):
     def change_direction(self):
         vector = tuple()
         if not self.active_frightened:
-            if not self.active_scatter and not self.is_die:
+            if not self.active_scatter:
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
 
             elif self.active_scatter:
