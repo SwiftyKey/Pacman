@@ -89,7 +89,6 @@ class Game:
     def __init__(self):
         self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
         self.ghosts_frightened = False
-        self.ghost_deaths = 0
 
         self.pacman = Pacman(26.0, 13.5)
         self.lives = 3
@@ -111,18 +110,13 @@ class Game:
 
     def check_surroundings(self):
         for ghost in self.ghosts:
-            if self.touching_pacman(ghost.row, ghost.col) and not ghost.is_die:
+            if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
                 if not self.ghosts_frightened:
                     if self.lives > 1:
                         reset()
                     else:
                         self.is_game_over = True
                         return
-                else:
-                    ghost.die()
-                    ghost.speed = 1 / 2
-                    self.ghost_deaths += 1
-                    self.score += 200 if self.ghost_deaths == 1 else 400
 
         if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
@@ -135,8 +129,7 @@ class Game:
                 self.points += 5
 
                 for ghost in self.ghosts:
-                    ghost.change_active_frightened()
-                    self.ghosts_frightened = True
+                    ghost.active_frightened = True
                     ghost.speed = 1 / 4
 
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
