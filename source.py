@@ -88,6 +88,7 @@ class Game:
     def __init__(self):
         # self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
         self.ghosts = [Blinky(14.0, 13.5), Pinky(14.0, 13.5), Clyde(14.0, 13.5), Inky(14.0, 13.5)]
+        self.ghosts_frightened = False
 
         self.pacman = Pacman(26.0, 13.5)
         self.lives = 3
@@ -110,11 +111,15 @@ class Game:
     def check_surroundings(self):
         for ghost in self.ghosts:
             if self.touching_pacman(ghost.row, ghost.col):
-                if self.lives > 1:
-                    reset()
+                if not self.ghosts_frightened:
+                    if self.lives > 1:
+                        reset()
+                    else:
+                        self.is_game_over = True
+                        return
                 else:
-                    self.is_game_over = True
-                    return
+                    ghost.die()
+                    print(f"dead {ghost.__class__.__name__}")
 
         if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
@@ -125,6 +130,10 @@ class Game:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 50
                 self.points += 5
+
+                for ghost in self.ghosts:
+                    ghost.change_active_frightened()
+                    self.ghosts_frightened = True
 
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
@@ -468,8 +477,8 @@ class Ghost:
         self.dir = 0
         self.is_die = False
         self.active = False
-        self.active_scatter = False
-        self.active_frightened = False
+        self.active_scatter = False  # рассеивание
+        self.active_frightened = False  # испуг
 
     def update(self):
         self.change_active()
@@ -489,6 +498,10 @@ class Ghost:
         self.active_scatter = True
         self.active_frightened = False
 
+    def change_active_frightened(self):
+        self.active_frightened = True
+        self.active_scatter = False
+
     def change_activities(self):
         self.active_scatter = False
         self.active_frightened = False
@@ -502,10 +515,6 @@ class Ghost:
         screen.blit(self.image, (self.col * square + sprite_offset,
                                  self.row * square + sprite_offset,
                                  square, square))
-
-    def change_active_frightened(self):
-        self.active_frightened = True
-        self.active_scatter = False
 
     def draw(self):
         if not self.is_die and not self.active_frightened:
@@ -523,11 +532,11 @@ class Ghost:
 
             self.transform_sprite()
 
-        elif self.active_frightened:
+        if self.active_frightened:
             self.image = self.SPRITE_FRIGHTENED
             self.transform_sprite()
 
-        elif self.is_die:
+        if self.is_die:
             self.image = self.SPRITES_DEAD[0]
             self.transform_sprite()
 
