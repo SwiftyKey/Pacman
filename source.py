@@ -200,7 +200,6 @@ class Game:
         for ghost in self.ghosts:
             ghost.update()
             ghost.draw()
-            print(ghost.active)
 
         self.level_timer += 1
 
