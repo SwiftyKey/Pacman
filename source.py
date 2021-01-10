@@ -128,8 +128,9 @@ class Game:
                 self.points += 5
 
                 for ghost in self.ghosts:
-                    ghost.active_frightened = True
-                    ghost.speed = 1 / 2
+                    if ghost.active:
+                        ghost.active_frightened = True
+                        ghost.speed = 1 / 2
 
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
