@@ -830,7 +830,6 @@ class Inky(Ghost):
             self.active = True
 
     def leave_home(self):
-        print(self.col, self.row)
         if self.row >= 14.0:
             self.dir = 0
         else:
@@ -922,7 +921,6 @@ class Clyde(Ghost):
             self.active = True
 
     def leave_home(self):
-        print(self.row, self.col)
         if self.col >= 13.5:
             self.dir = 3
         else:
