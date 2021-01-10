@@ -63,9 +63,9 @@ clock = pygame.time.Clock()
 running = True
 
 
-def can_move(row: float, col: float):
+def can_move(row: float, col: float, key=True):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3 or \
-            int(row) == 15 and int(col) in (13, 14):
+            int(row) == 15 and int(col) in (13, 14) and key:
         return True
     return False
 
@@ -111,12 +111,11 @@ class Game:
     def check_surroundings(self):
         for ghost in self.ghosts:
             if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
-                if not self.ghosts_frightened:
-                    if self.lives > 1:
-                        reset()
-                    else:
-                        self.is_game_over = True
-                        return
+                if self.lives > 1:
+                    reset()
+                else:
+                    self.is_game_over = True
+                    return
 
         if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
             if game_board[int(self.pacman.row)][int(self.pacman.col)] == 2:
@@ -130,7 +129,7 @@ class Game:
 
                 for ghost in self.ghosts:
                     ghost.active_frightened = True
-                    ghost.speed = 1 / 4
+                    ghost.speed = 1 / 2
 
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
@@ -201,6 +200,7 @@ class Game:
         for ghost in self.ghosts:
             ghost.update()
             ghost.draw()
+            print(ghost.active)
 
         self.level_timer += 1
 
@@ -341,44 +341,51 @@ class Pacman:
         self.new_dir = new_dir
 
     def update(self):
-        print(self.col, self.row)
         if self.col < 0.5:
             self.col = 27.0
         if self.col > 27.0:
             self.col = 0
 
         if self.new_dir == 0:
-            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.floor(self.row - self.speed), self.col, key=False) \
+                    and self.col % 1.0 == 0:
                 self.row -= self.speed
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 1:
-            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.ceil(self.col + self.speed), key=False) \
+                    and self.row % 1.0 == 0:
                 self.col += self.speed
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 2:
-            if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.ceil(self.row + self.speed), self.col, key=False) \
+                    and self.col % 1.0 == 0:
                 self.row += self.speed
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 3:
-            if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.floor(self.col - self.speed), key=False)\
+                    and self.row % 1.0 == 0:
                 self.col -= self.speed
                 self.dir = self.new_dir
                 return
 
         if self.dir == 0:
-            if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.floor(self.row - self.speed), self.col, key=False) \
+                    and self.col % 1.0 == 0:
                 self.row -= self.speed
         elif self.dir == 1:
-            if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.ceil(self.col + self.speed), key=False) \
+                    and self.row % 1.0 == 0:
                 self.col += self.speed
         elif self.dir == 2:
-            if can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0:
+            if can_move(math.ceil(self.row + self.speed), self.col, key=False) \
+                    and self.col % 1.0 == 0:
                 self.row += self.speed
         elif self.dir == 3:
-            if can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0:
+            if can_move(self.row, math.floor(self.col - self.speed), key=False) \
+                    and self.row % 1.0 == 0:
                 self.col -= self.speed
 
     # метод для рисования пакман в зависимости от его состояния
