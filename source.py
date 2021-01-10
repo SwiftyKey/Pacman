@@ -8,6 +8,7 @@ BOARD_PATH = "resources/BoardTiles/"
 TEXT_PATH = "resources/TextTiles/"
 ELEMENT_PATH = "resources/OtherTiles/"
 DATA_PATH = "resources/UserData/"
+MUSIC_PATH = "resources/Music/"
 
 original_game_Board = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -62,6 +63,8 @@ fps = 60
 clock = pygame.time.Clock()
 running = True
 
+pygame.mixer.init()
+
 
 def can_move(row: float, col: float, key=True):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3 or \
@@ -83,6 +86,19 @@ def pause(time):
     cur = 0
     while not cur == time:
         cur += 1
+
+
+def play_music(music, force=False):
+    if force:
+        pygame.mixer.music.unload()
+        pygame.mixer.music.load(MUSIC_PATH + music)
+        pygame.mixer.music.play()
+    else:
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.unload()
+            pygame.mixer.music.load(MUSIC_PATH + music)
+            pygame.mixer.music.queue(MUSIC_PATH + music)
+            pygame.mixer.music.play()
 
 
 class Game:
@@ -113,8 +129,11 @@ class Game:
             if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
                 if self.lives > 1:
                     reset()
+                    play_music("pacman_death.wav", True)
+                    return
                 else:
                     self.is_game_over = True
+                    play_music("death_1.wav", True)
                     return
 
         if self.pacman.row % 1.0 == 0 and self.pacman.col % 1.0 == 0:
@@ -122,6 +141,7 @@ class Game:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 10
                 self.points += 1
+                play_music("munch_1.wav")
             elif game_board[int(self.pacman.row)][int(self.pacman.col)] == 6:
                 game_board[int(self.pacman.row)][int(self.pacman.col)] = 1
                 self.score += 50
@@ -132,19 +152,22 @@ class Game:
                         ghost.active_frightened = True
                         ghost.speed = 1 / 2
 
+                play_music("power_pellet.wav", True)
+
         if self.touching_pacman(self.berry_location[0], self.berry_location[1]) \
                 and not self.berry_state[2] and self.level_timer in range(self.berry_state[0],
                                                                           self.berry_state[1]):
             self.berry_state[2] = True
             self.score += self.berry_score
             self.berries_collected.append(self.berry)
+            play_music("eat_fruit.wav", True)
 
         if self.score > self.high_score:
             self.high_score = self.score
             self.record_high_score()
 
         if self.points == 260:
-            # self.win
+            # self.win             play_music("intermission.wav", True)
             pass
 
     def touching_pacman(self, row: float, col: float):
@@ -365,7 +388,7 @@ class Pacman:
                 self.dir = self.new_dir
                 return
         elif self.new_dir == 3:
-            if can_move(self.row, math.floor(self.col - self.speed), key=False)\
+            if can_move(self.row, math.floor(self.col - self.speed), key=False) \
                     and self.row % 1.0 == 0:
                 self.col -= self.speed
                 self.dir = self.new_dir
@@ -544,15 +567,15 @@ class Ghost:
                     and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.dir = 0
-            elif can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home)\
+            elif can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
                     and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.dir = 1
-            elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home)\
+            elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
                     and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.dir = 2
-            elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home)\
+            elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
                     and self.row % 1.0 == 0 \
                     and 1 != self.dir:
                 self.dir = 3
@@ -573,22 +596,22 @@ class Ghost:
 
     def can_move_in_this_dir(self, direction):
         if direction == 0:
-            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home)\
+            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
                     and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 return True
         elif direction == 1:
-            if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home)\
+            if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
                     and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 return True
         elif direction == 2:
-            if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home)\
+            if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
                     and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 return True
         elif direction == 3:
-            if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home)\
+            if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
                     and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 return True
@@ -598,25 +621,25 @@ class Ghost:
     def move(self):
         moved = False
         if self.dir == 0:
-            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home)\
+            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
                     and self.col % 1.0 == 0 \
                     and 2 != self.dir:
                 self.row -= self.speed
                 moved = True
         elif self.dir == 1:
-            if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home)\
+            if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
                     and self.row % 1.0 == 0 \
                     and 3 != self.dir:
                 self.col += self.speed
                 moved = True
         elif self.dir == 2:
-            if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home)\
+            if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
                     and self.col % 1.0 == 0 \
                     and 0 != self.dir:
                 self.row += self.speed
                 moved = True
         elif self.dir == 3:
-            if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home)\
+            if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
                     and self.row % 1.0 == 0 \
                     and self.dir != 1:
                 self.col -= self.speed
@@ -756,23 +779,23 @@ class Pinky(Ghost):
                     dir_ver = ''
 
                 if game.ghosts[0].row == self.row:
-                    if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home)\
+                    if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
                             and self.row % 1.0 == 0 \
                             and 3 != self.dir:
                         self.dir = 1
                         return
-                    elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home)\
+                    elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
                             and self.row % 1.0 == 0 \
                             and self.dir != 1:
                         self.dir = 3
                         return
                 elif game.ghosts[0].col == self.col:
-                    if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home)\
+                    if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
                             and self.col % 1.0 == 0 \
                             and 2 != self.dir:
                         self.dir = 0
                         return
-                    elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home)\
+                    elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
                             and self.col % 1.0 == 0 \
                             and 0 != self.dir:
                         self.dir = 2
