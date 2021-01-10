@@ -341,7 +341,6 @@ class Pacman:
         self.new_dir = new_dir
 
     def update(self):
-        print(self.col, self.row)
         if self.col < 0.5:
             self.col = 27.0
         if self.col > 27.0:
@@ -436,7 +435,7 @@ class Ghost:
         self.speed = 1 / 2
         self.image = None
         self.dir = 0
-        self.active = False
+        self.active = True
         self.active_scatter = False  # рассеивание
         self.active_frightened = False  # испуг
         self.calculate_ticks = False
@@ -489,6 +488,7 @@ class Ghost:
             self.transform_sprite()
 
         elif self.active_frightened:
+            self.transform_sprite()
             if not self.calculate_ticks:
                 start_ticks = pygame.time.get_ticks()
                 self.calculate_ticks = True
@@ -499,7 +499,7 @@ class Ghost:
                 else:
                     self.image = self.SPRITE_FRIGHTENED
             elif seconds >= 7.0:
-                self.change_activities()
+                self.active_frightened = False
                 self.calculate_ticks = False
                 self.speed = 1 / 2
             else:
@@ -670,6 +670,7 @@ class Blinky(Ghost):
                     if can_move(math.floor(self.row - self.speed), self.col) \
                             and self.col % 1.0 == 0 and 2 != self.dir:
                         self.dir = 0
+
         else:
             self.choose_direction_in_frightened()
 
@@ -923,6 +924,7 @@ class Clyde(Ghost):
                                     self.col) and self.col % 1.0 == 0 \
                                 and 2 != self.dir:
                             self.dir = 0
+
         else:
             self.choose_direction_in_frightened()
 
