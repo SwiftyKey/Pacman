@@ -428,6 +428,7 @@ class Ghost:
     SPRITES = []
 
     SPRITE_FRIGHTENED = pygame.image.load(ELEMENT_PATH + "tile072.png")
+    SPRITE_FRIGHTENED_WHITE = pygame.image.load(ELEMENT_PATH + 'tile070.png')
 
     def __init__(self, row, col):
         self.row = row
@@ -438,6 +439,7 @@ class Ghost:
         self.active = False
         self.active_scatter = False  # рассеивание
         self.active_frightened = False  # испуг
+        self.calculate_ticks = False
 
     def update(self):
         self.change_active()
@@ -470,6 +472,7 @@ class Ghost:
                                  square, square))
 
     def draw(self):
+        global start_ticks
         if not self.active_frightened:
             self.image = self.SPRITES[0]
             self.transform_sprite()
@@ -484,8 +487,23 @@ class Ghost:
                     self.image = self.SPRITES[3]
 
             self.transform_sprite()
+
         elif self.active_frightened:
-            self.image = self.SPRITE_FRIGHTENED
+            if not self.calculate_ticks:
+                start_ticks = pygame.time.get_ticks()
+                self.calculate_ticks = True
+            seconds = (pygame.time.get_ticks() - start_ticks) / 1000
+            if 4.0 < seconds < 7.0:
+                if int(seconds) % 2 == 0:
+                    self.image = self.SPRITE_FRIGHTENED_WHITE
+                else:
+                    self.image = self.SPRITE_FRIGHTENED
+            elif seconds >= 7.0:
+                self.change_activities()
+                self.calculate_ticks = False
+                self.speed = 1 / 2
+            else:
+                self.image = self.SPRITE_FRIGHTENED
             self.transform_sprite()
 
     def change_direction(self):
@@ -610,14 +628,14 @@ class Blinky(Ghost):
         self.active = True
         self.active_scatter = False
         self.active_frightened = False
+        self.calculate_ticks = False
 
     def change_direction(self):
-        vector = tuple()
         if not self.active_frightened:
             if not self.active_scatter:
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
 
-            elif self.active_scatter:
+            else:
                 vector = (self.col - 26.0, self.row - 6.0)
 
             if vector[0] < 0:
@@ -672,6 +690,7 @@ class Pinky(Ghost):
         self.active = False
         self.active_scatter = False
         self.active_frightened = False
+        self.calculate_ticks = False
 
     def change_active(self):
         self.active = True
@@ -679,7 +698,6 @@ class Pinky(Ghost):
     def change_direction(self):
         if not self.active_frightened:
             pacman_dir = game.pacman.dir
-            vector = tuple()
             if not self.active_scatter:
                 if pacman_dir == 0:
                     vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
@@ -690,7 +708,7 @@ class Pinky(Ghost):
                 elif pacman_dir == 3:
                     vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
 
-            if self.active_scatter:
+            else:
                 vector = (self.col - 4.0, self.row - 6.0)
 
             if vector[0] < 0:
@@ -768,13 +786,13 @@ class Inky(Ghost):
         self.active = False
         self.active_scatter = False
         self.active_frightened = False
+        self.calculate_ticks = False
 
     def change_active(self):
         if game.get_points() >= 30:
             self.active = True
 
     def change_direction(self):
-        vector = tuple()
         if not self.active_frightened:
             if not self.active_scatter:
                 vector = [game.ghosts[0].col - game.pacman.col, game.ghosts[0].row - game.pacman.row]
@@ -790,7 +808,7 @@ class Inky(Ghost):
 
                 vector = [vector[0] * 2 + game.ghosts[0].col, vector[0] * 2 + game.ghosts[0].row]
 
-            elif self.active_scatter:
+            else:
                 vector = [self.col - 7.0, self.row - 30.0]
 
             if vector[0] < 0:
@@ -845,13 +863,13 @@ class Clyde(Ghost):
         self.active = False
         self.active_scatter = False
         self.active_frightened = False
+        self.calculate_ticks = False
 
     def change_active(self):
         if game.get_points() >= 80:
             self.active = True
 
     def change_direction(self):
-        vector = tuple()
         if not self.active_frightened:
             if not self.active_scatter:
                 if self.dir == 0:
@@ -866,45 +884,45 @@ class Clyde(Ghost):
                 elif self.dir == 3:
                     self.random_choose_direction([0, 2, 3])
 
-            elif self.active_scatter:
+            else:
                 vector = (self.col - 19.0, self.row - 30.0)
 
-            if vector[0] < 0:
-                dir_pacman_hor = 'r'
-            elif vector[0] > 0:
-                dir_pacman_hor = 'l'
-            else:
-                dir_pacman_hor = ''
+                if vector[0] < 0:
+                    dir_pacman_hor = 'r'
+                elif vector[0] > 0:
+                    dir_pacman_hor = 'l'
+                else:
+                    dir_pacman_hor = ''
 
-            if vector[1] < 0:
-                dir_pacman_ver = 'b'
-            elif vector[1] > 0:
-                dir_pacman_ver = 't'
-            else:
-                dir_pacman_ver = ''
+                if vector[1] < 0:
+                    dir_pacman_ver = 'b'
+                elif vector[1] > 0:
+                    dir_pacman_ver = 't'
+                else:
+                    dir_pacman_ver = ''
 
-            if self.dir % 2 == 0:
-                if dir_pacman_hor == 'r':
-                    if can_move(self.row,
-                                math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                            and 3 != self.dir:
-                        self.dir = 1
-                elif dir_pacman_hor == 'l':
-                    if can_move(self.row,
-                                math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
-                            and 1 != self.dir:
-                        self.dir = 3
-            else:
-                if dir_pacman_ver == 'b':
-                    if can_move(math.ceil(self.row + self.speed),
-                                self.col) and self.col % 1.0 == 0 \
-                            and 0 != self.dir:
-                        self.dir = 2
-                elif dir_pacman_ver == 't':
-                    if can_move(math.floor(self.row - self.speed),
-                                self.col) and self.col % 1.0 == 0 \
-                            and 2 != self.dir:
-                        self.dir = 0
+                if self.dir % 2 == 0:
+                    if dir_pacman_hor == 'r':
+                        if can_move(self.row,
+                                    math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
+                                and 3 != self.dir:
+                            self.dir = 1
+                    elif dir_pacman_hor == 'l':
+                        if can_move(self.row,
+                                    math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
+                                and 1 != self.dir:
+                            self.dir = 3
+                else:
+                    if dir_pacman_ver == 'b':
+                        if can_move(math.ceil(self.row + self.speed),
+                                    self.col) and self.col % 1.0 == 0 \
+                                and 0 != self.dir:
+                            self.dir = 2
+                    elif dir_pacman_ver == 't':
+                        if can_move(math.floor(self.row - self.speed),
+                                    self.col) and self.col % 1.0 == 0 \
+                                and 2 != self.dir:
+                            self.dir = 0
         else:
             self.choose_direction_in_frightened()
 
