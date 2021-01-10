@@ -780,23 +780,27 @@ class Pinky(Ghost):
 
                 if self.dir % 2 != 0:
                     if dir_ver == 't':
-                        if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
+                        if can_move(math.floor(self.row - self.speed),
+                                    self.col, self.key_leave_home) \
                                 and self.col % 1.0 == 0 and 2 != self.dir:
                             self.dir = 0
                             return
                     elif dir_ver == 'b':
-                        if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
+                        if can_move(math.ceil(self.row + self.speed),
+                                    self.col, self.key_leave_home) \
                                 and self.col % 1.0 == 0 and 0 != self.dir:
                             self.dir = 2
                             return
                 else:
                     if dir_hor == 'l':
-                        if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
+                        if can_move(self.row, math.floor(self.col - self.speed),
+                                    self.key_leave_home) \
                                 and self.row % 1.0 == 0 and 1 != self.dir:
                             self.dir = 3
                             return
                     elif dir_hor == 'r':
-                        if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
+                        if can_move(self.row, math.ceil(self.col + self.speed),
+                                    self.key_leave_home) \
                                 and self.row % 1.0 == 0 and 3 != self.dir:
                             self.dir = 1
                             return
@@ -875,22 +879,21 @@ class Inky(Ghost):
 
                 if self.dir % 2 == 0:
                     if dir_pacman_hor == 'r':
-                        if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home)\
-                                and self.row % 1.0 == 0 \
-                                and 3 != self.dir:
+                        if can_move(self.row, math.ceil(self.col + self.speed),
+                                    self.key_leave_home) and self.row % 1.0 == 0 and 3 != self.dir:
                             self.dir = 1
                     elif dir_pacman_hor == 'l':
-                        if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
-                                and self.row % 1.0 == 0 and 1 != self.dir:
+                        if can_move(self.row, math.floor(self.col - self.speed),
+                                    self.key_leave_home) and self.row % 1.0 == 0 and 1 != self.dir:
                             self.dir = 3
                 else:
                     if dir_pacman_ver == 'b':
-                        if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
-                                and self.col % 1.0 == 0 and 0 != self.dir:
+                        if can_move(math.ceil(self.row + self.speed), self.col,
+                                    self.key_leave_home) and self.col % 1.0 == 0 and 0 != self.dir:
                             self.dir = 2
                     elif dir_pacman_ver == 't':
-                        if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
-                                and self.col % 1.0 == 0 and 2 != self.dir:
+                        if can_move(math.floor(self.row - self.speed), self.col,
+                                    self.key_leave_home) and self.col % 1.0 == 0 and 2 != self.dir:
                             self.dir = 0
             else:
                 self.leave_home()
