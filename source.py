@@ -616,8 +616,8 @@ class Ghost:
     def change_active(self):
         pass
 
-    def draw_if_frightened(self):
-        self.image = pygame.image.load(ELEMENT_PATH + 'tile072.png')
+    def leave_home(self):
+        pass
 
 
 class Blinky(Ghost):
@@ -700,81 +700,94 @@ class Pinky(Ghost):
         self.active_scatter = False
         self.active_frightened = False
         self.calculate_ticks = False
+        self.key_leave_home = True
 
     def change_active(self):
         self.active = True
 
+    def leave_home(self):
+        self.dir = 0
+        if self.row > 15.0:
+            self.key_leave_home = False
+
     def change_direction(self):
         if not self.active_frightened:
-            pacman_dir = game.pacman.dir
-            if not self.active_scatter:
-                if pacman_dir == 0:
-                    vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
-                elif pacman_dir == 1:
-                    vector = (self.col - game.pacman.col + 2.5, self.row - game.pacman.row)
-                elif pacman_dir == 2:
-                    vector = (self.col - game.pacman.col, self.row - game.pacman.row - 2.5)
-                elif pacman_dir == 3:
-                    vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
+            if not self.key_leave_home:
+                pacman_dir = game.pacman.dir
+                if not self.active_scatter:
+                    if pacman_dir == 0:
+                        vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
+                    elif pacman_dir == 1:
+                        vector = (self.col - game.pacman.col + 2.5, self.row - game.pacman.row)
+                    elif pacman_dir == 2:
+                        vector = (self.col - game.pacman.col, self.row - game.pacman.row - 2.5)
+                    elif pacman_dir == 3:
+                        vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
 
-            else:
-                vector = (self.col - 4.0, self.row - 6.0)
+                else:
+                    vector = (self.col - 4.0, self.row - 6.0)
 
-            if vector[0] < 0:
-                dir_hor = 'r'
-            elif vector[0] > 0:
-                dir_hor = 'l'
-            else:
-                dir_hor = ''
+                if vector[0] < 0:
+                    dir_hor = 'r'
+                elif vector[0] > 0:
+                    dir_hor = 'l'
+                else:
+                    dir_hor = ''
 
-            if vector[1] < 0:
-                dir_ver = 'b'
-            elif vector[1] > 0:
-                dir_ver = 't'
-            else:
-                dir_ver = ''
+                if vector[1] < 0:
+                    dir_ver = 'b'
+                elif vector[1] > 0:
+                    dir_ver = 't'
+                else:
+                    dir_ver = ''
 
-            if game.ghosts[0].row == self.row:
-                if can_move(self.row, math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                        and 3 != self.dir:
-                    self.dir = 1
-                    return
-                elif can_move(self.row, math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
-                        and self.dir != 1:
-                    self.dir = 3
-                    return
-            elif game.ghosts[0].col == self.col:
-                if can_move(math.floor(self.row - self.speed), self.col) and self.col % 1.0 == 0 \
-                        and 2 != self.dir:
-                    self.dir = 0
-                    return
-                elif can_move(math.ceil(self.row + self.speed), self.col) and self.col % 1.0 == 0 \
-                        and 0 != self.dir:
-                    self.dir = 2
-                    return
-
-            if self.dir % 2 != 0:
-                if dir_ver == 't':
-                    if can_move(math.floor(self.row - self.speed), self.col) \
-                            and self.col % 1.0 == 0 and 2 != self.dir:
-                        self.dir = 0
-                        return
-                elif dir_ver == 'b':
-                    if can_move(math.ceil(self.row + self.speed), self.col) \
-                            and self.col % 1.0 == 0 and 0 != self.dir:
-                        self.dir = 2
-                        return
-            else:
-                if dir_hor == 'l':
-                    if can_move(self.row, math.floor(self.col - self.speed)) \
-                            and self.row % 1.0 == 0 and 1 != self.dir:
-                        self.dir = 3
-                        return
-                elif dir_hor == 'r':
-                    if can_move(self.row, math.ceil(self.col + self.speed)) \
-                            and self.row % 1.0 == 0 and 3 != self.dir:
+                if game.ghosts[0].row == self.row:
+                    if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home)\
+                            and self.row % 1.0 == 0 \
+                            and 3 != self.dir:
                         self.dir = 1
                         return
+                    elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home)\
+                            and self.row % 1.0 == 0 \
+                            and self.dir != 1:
+                        self.dir = 3
+                        return
+                elif game.ghosts[0].col == self.col:
+                    if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home)\
+                            and self.col % 1.0 == 0 \
+                            and 2 != self.dir:
+                        self.dir = 0
+                        return
+                    elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home)\
+                            and self.col % 1.0 == 0 \
+                            and 0 != self.dir:
+                        self.dir = 2
+                        return
+
+                if self.dir % 2 != 0:
+                    if dir_ver == 't':
+                        if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
+                                and self.col % 1.0 == 0 and 2 != self.dir:
+                            self.dir = 0
+                            return
+                    elif dir_ver == 'b':
+                        if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
+                                and self.col % 1.0 == 0 and 0 != self.dir:
+                            self.dir = 2
+                            return
+                else:
+                    if dir_hor == 'l':
+                        if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
+                                and self.row % 1.0 == 0 and 1 != self.dir:
+                            self.dir = 3
+                            return
+                    elif dir_hor == 'r':
+                        if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
+                                and self.row % 1.0 == 0 and 3 != self.dir:
+                            self.dir = 1
+                            return
+            else:
+                self.leave_home()
         else:
             self.choose_direction_in_frightened()
 
