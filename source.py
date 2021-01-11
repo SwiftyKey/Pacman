@@ -747,7 +747,7 @@ class Pinky(Ghost):
         self.key_leave_home = True
 
     def change_active(self):
-        self.active = False
+        self.active = True
 
     def leave_home(self):
         self.dir = 0
@@ -761,13 +761,13 @@ class Pinky(Ghost):
                 vector = tuple()
                 if not self.active_scatter:
                     if pacman_dir == 0:
-                        vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
+                        vector = (self.col - game.pacman.col, self.row - game.pacman.row + 4)
                     elif pacman_dir == 1:
-                        vector = (self.col - game.pacman.col + 2.5, self.row - game.pacman.row)
+                        vector = (self.col - game.pacman.col + 4, self.row - game.pacman.row)
                     elif pacman_dir == 2:
-                        vector = (self.col - game.pacman.col, self.row - game.pacman.row - 2.5)
+                        vector = (self.col - game.pacman.col, self.row - game.pacman.row - 4)
                     elif pacman_dir == 3:
-                        vector = (self.col - game.pacman.col - 2.5, self.row - game.pacman.row)
+                        vector = (self.col - game.pacman.col - 4, self.row - game.pacman.row)
 
                 else:
                     vector = (self.col - 4.0, self.row - 6.0)
@@ -826,7 +826,7 @@ class Inky(Ghost):
         self.speed = 1 / 2
         self.image = None
         self.dir = 0
-        self.active = True
+        self.active = False
         self.active_scatter = False
         self.active_frightened = False
         self.calculate_ticks = False
