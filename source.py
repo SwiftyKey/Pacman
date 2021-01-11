@@ -60,6 +60,7 @@ pygame.display.set_caption("Pacman")
 pellet_color = (222, 161, 133)
 
 fps = 60
+start_ticks = 0
 clock = pygame.time.Clock()
 running = True
 
@@ -751,6 +752,7 @@ class Pinky(Ghost):
         if not self.active_frightened:
             if not self.key_leave_home:
                 pacman_dir = game.pacman.dir
+                vector = tuple()
                 if not self.active_scatter:
                     if pacman_dir == 0:
                         vector = (self.col - game.pacman.col, self.row - game.pacman.row + 2.5)
