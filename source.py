@@ -63,6 +63,8 @@ fps = 60
 start_ticks = 0
 clock = pygame.time.Clock()
 running = True
+new_game = False
+
 
 pygame.mixer.init()
 
@@ -100,6 +102,99 @@ def play_music(music, force=False):
             pygame.mixer.music.load(MUSIC_PATH + music)
             pygame.mixer.music.queue(MUSIC_PATH + music)
             pygame.mixer.music.play()
+
+
+def splash_screen():
+    pacman_title = ["tile016.png", "tile000.png", "tile448.png", "tile012.png", "tile000.png",
+                    "tile013.png"]
+    for i in range(len(pacman_title)):
+        letter = pygame.image.load(TEXT_PATH + pacman_title[i])
+        letter = pygame.transform.scale(letter, (int(square * 4), int(square * 4)))
+        screen.blit(letter, ((2 + 4 * i) * square, 2 * square, square, square))
+
+    character_title = [
+        "tile002.png", "tile007.png", "tile000.png", "tile018.png", "tile000.png", "tile002.png",
+        "tile020.png", "tile004.png", "tile018.png",
+
+        "tile015.png", "tile042.png", "tile015.png",
+
+        "tile013.png", "tile008.png", "tile002.png", "tile010.png", "tile013.png", "tile000.png",
+        "tile012.png", "tile004.png"
+    ]
+    for i in range(len(character_title)):
+        letter = pygame.image.load(TEXT_PATH + character_title[i])
+        letter = pygame.transform.scale(letter, (int(square), int(square)))
+        screen.blit(letter, ((4 + i) * square, 10 * square, square, square))
+
+    characters = [
+        [
+            "tile449.png", "tile015.png", "tile107.png", "tile015.png", "tile083.png", "tile071.png",
+            "tile064.png", "tile067.png", "tile078.png", "tile087.png",
+            "tile015.png", "tile015.png", "tile015.png", "tile015.png",
+            "tile108.png", "tile065.png", "tile075.png", "tile072.png", "tile077.png", "tile074.png",
+            "tile089.png", "tile108.png"
+        ],
+        [
+            "tile450.png", "tile015.png", "tile363.png", "tile015.png", "tile339.png", "tile336.png",
+            "tile324.png", "tile324.png", "tile323.png", "tile345.png",
+            "tile015.png", "tile015.png", "tile015.png", "tile015.png",
+            "tile364.png", "tile336.png", "tile328.png", "tile333.png", "tile330.png", "tile345.png",
+            "tile364.png"
+        ],
+        [
+            "tile452.png", "tile015.png", "tile363.png", "tile015.png", "tile193.png", "tile192.png",
+            "tile211.png", "tile199.png", "tile197.png", "tile213.png", "tile203.png",
+            "tile015.png", "tile015.png", "tile015.png",
+            "tile236.png", "tile200.png", "tile205.png", "tile202.png", "tile217.png", "tile236.png"
+        ],
+        [
+            "tile451.png", "tile015.png", "tile363.png", "tile015.png", "tile272.png", "tile270.png",
+            "tile266.png", "tile260.png", "tile281.png",
+            "tile015.png", "tile015.png", "tile015.png", "tile015.png", "tile015.png",
+            "tile300.png", "tile258.png", "tile267.png", "tile281.png", "tile259.png", "tile260.png",
+            "tile300.png"
+        ]
+    ]
+    for i in range(len(characters)):
+        for j in range(len(characters[i])):
+            if j == 0:
+                letter = pygame.image.load(TEXT_PATH + characters[i][j])
+                letter = pygame.transform.scale(letter, (
+                    int(square * sprite_ratio), int(square * sprite_ratio)))
+                screen.blit(letter, (
+                    (2 + j) * square - square // 2, (12 + 2 * i) * square - square // 3, square,
+                    square))
+            else:
+                letter = pygame.image.load(TEXT_PATH + characters[i][j])
+                letter = pygame.transform.scale(letter, (int(square), int(square)))
+                screen.blit(letter, ((2 + j) * square, (12 + 2 * i) * square, square, square))
+
+    event = ["tile449.png", "tile015.png", "tile452.png", "tile015.png", "tile015.png",
+             "tile448.png", "tile453.png", "tile015.png", "tile015.png", "tile015.png",
+             "tile453.png"]
+    for i in range(len(event)):
+        character = pygame.image.load(TEXT_PATH + event[i])
+        character = pygame.transform.scale(character, (int(square * 2), int(square * 2)))
+        screen.blit(character, ((4 + i * 2) * square, 24 * square, square, square))
+
+    wall = ["tile454.png", "tile454.png", "tile454.png", "tile454.png", "tile454.png", "tile454.png",
+            "tile454.png", "tile454.png", "tile454.png", "tile454.png", "tile454.png", "tile454.png",
+            "tile454.png", "tile454.png", "tile454.png"]
+    for i in range(len(wall)):
+        platform = pygame.image.load(TEXT_PATH + wall[i])
+        platform = pygame.transform.scale(platform, (int(square * 2), int(square * 2)))
+        screen.blit(platform, ((i * 2) * square, 26 * square, square, square))
+
+    instructions = ["tile016.png", "tile018.png", "tile004.png", "tile019.png", "tile019.png",
+                    "tile015.png", "tile019.png", "tile016.png", "tile000.png", "tile002.png",
+                    "tile004.png", "tile015.png", "tile020.png", "tile014.png", "tile015.png",
+                    "tile016.png", "tile011.png", "tile000.png", "tile025.png"]
+    for i in range(len(instructions)):
+        letter = pygame.image.load(TEXT_PATH + instructions[i])
+        letter = pygame.transform.scale(letter, (int(square), int(square)))
+        screen.blit(letter, ((4.5 + i) * square, 32 * square - 10, square, square))
+
+    pygame.display.update()
 
 
 class Game:
@@ -191,10 +286,9 @@ class Game:
         return self.paused is True
 
     def game_over(self):
-        global running
+        global new_game
         if self.game_over_counter == 12:
-            running = False
-            self.record_high_score()
+            new_game = True
             return
 
         pacman_image = pygame.image.load(ELEMENT_PATH + "tile" +
@@ -1019,6 +1113,7 @@ class Clyde(Ghost):
 
 
 game = Game()
+splash_screen()
 
 while running:
     for event in pygame.event.get():
@@ -1034,8 +1129,14 @@ while running:
                 game.pacman.change_direction(2)
             elif event.key == pygame.K_a:
                 game.pacman.change_direction(3)
-    game.render()
     if not game.is_paused():
+        game.render()
         game.update()
+    if new_game:
+        game = Game()
+        screen.fill((0, 0, 0))
+        splash_screen()
+        new_game = False
+        game_board = original_game_Board
     pygame.display.flip()
     clock.tick(fps)
