@@ -67,6 +67,24 @@ running = True
 pygame.mixer.init()
 
 
+def find_direction(vector):
+    if vector[0] < 0:
+        dir_hor = 'r'
+    elif vector[0] > 0:
+        dir_hor = 'l'
+    else:
+        dir_hor = ''
+
+    if vector[1] < 0:
+        dir_ver = 'b'
+    elif vector[1] > 0:
+        dir_ver = 't'
+    else:
+        dir_ver = ''
+
+    return dir_hor, dir_ver
+
+
 def can_move(row: float, col: float, key=True):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3 or \
             int(row) == 15 and int(col) in (13, 14) and key:
@@ -564,21 +582,13 @@ class Ghost:
 
     def turn_in_impasse(self, moved):
         if not moved:
-            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
-                    and self.col % 1.0 == 0 \
-                    and 2 != self.dir:
+            if self.can_move_dir_up():
                 self.dir = 0
-            elif can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
-                    and self.row % 1.0 == 0 \
-                    and 3 != self.dir:
+            elif self.can_move_dir_right():
                 self.dir = 1
-            elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
-                    and self.col % 1.0 == 0 \
-                    and 0 != self.dir:
+            elif self.can_move_dir_bottom():
                 self.dir = 2
-            elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
-                    and self.row % 1.0 == 0 \
-                    and 1 != self.dir:
+            elif self.can_move_dir_left():
                 self.dir = 3
 
     def random_choose_direction(self, directions):
@@ -597,24 +607,16 @@ class Ghost:
 
     def can_move_in_this_dir(self, direction):
         if direction == 0:
-            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
-                    and self.col % 1.0 == 0 \
-                    and 2 != self.dir:
+            if self.can_move_dir_up():
                 return True
         elif direction == 1:
-            if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
-                    and self.row % 1.0 == 0 \
-                    and 3 != self.dir:
+            if self.can_move_dir_right():
                 return True
         elif direction == 2:
-            if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
-                    and self.col % 1.0 == 0 \
-                    and 0 != self.dir:
+            if self.can_move_dir_bottom():
                 return True
         elif direction == 3:
-            if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
-                    and self.row % 1.0 == 0 \
-                    and self.dir != 1:
+            if self.can_move_dir_left():
                 return True
 
         return False
@@ -622,27 +624,19 @@ class Ghost:
     def move(self):
         moved = False
         if self.dir == 0:
-            if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
-                    and self.col % 1.0 == 0 \
-                    and 2 != self.dir:
+            if self.can_move_dir_up():
                 self.row -= self.speed
                 moved = True
         elif self.dir == 1:
-            if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
-                    and self.row % 1.0 == 0 \
-                    and 3 != self.dir:
+            if self.can_move_dir_right():
                 self.col += self.speed
                 moved = True
         elif self.dir == 2:
-            if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
-                    and self.col % 1.0 == 0 \
-                    and 0 != self.dir:
+            if self.can_move_dir_bottom():
                 self.row += self.speed
                 moved = True
         elif self.dir == 3:
-            if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
-                    and self.row % 1.0 == 0 \
-                    and self.dir != 1:
+            if self.can_move_dir_left():
                 self.col -= self.speed
                 moved = True
 
@@ -655,6 +649,34 @@ class Ghost:
 
     def leave_home(self):
         pass
+
+    def can_move_dir_up(self):
+        if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
+                and self.col % 1.0 == 0 \
+                and 2 != self.dir:
+            return True
+        return False
+
+    def can_move_dir_right(self):
+        if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
+                and self.row % 1.0 == 0 \
+                and 3 != self.dir:
+            return True
+        return False
+
+    def can_move_dir_bottom(self):
+        if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
+                and self.col % 1.0 == 0 \
+                and 0 != self.dir:
+            return True
+        return False
+
+    def can_move_dir_left(self):
+        if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
+                and self.row % 1.0 == 0 \
+                and self.dir != 1:
+            return True
+        return False
 
 
 class Blinky(Ghost):
@@ -684,37 +706,21 @@ class Blinky(Ghost):
             else:
                 vector = (self.col - 26.0, self.row - 6.0)
 
-            if vector[0] < 0:
-                dir_pacman_hor = 'r'
-            elif vector[0] > 0:
-                dir_pacman_hor = 'l'
-            else:
-                dir_pacman_hor = ''
-
-            if vector[1] < 0:
-                dir_pacman_ver = 'b'
-            elif vector[1] > 0:
-                dir_pacman_ver = 't'
-            else:
-                dir_pacman_ver = ''
+            dir_pacman_hor, dir_pacman_ver = find_direction(vector)
 
             if self.dir % 2 == 0:
                 if dir_pacman_hor == 'r':
-                    if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
-                            and self.row % 1.0 == 0 and 3 != self.dir:
+                    if self.can_move_dir_right():
                         self.dir = 1
                 elif dir_pacman_hor == 'l':
-                    if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
-                            and self.row % 1.0 == 0 and 1 != self.dir:
+                    if self.can_move_dir_left():
                         self.dir = 3
             else:
                 if dir_pacman_ver == 'b':
-                    if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
-                            and self.col % 1.0 == 0 and 0 != self.dir:
+                    if self.can_move_dir_bottom():
                         self.dir = 2
                 elif dir_pacman_ver == 't':
-                    if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
-                            and self.col % 1.0 == 0 and 2 != self.dir:
+                    if self.can_move_dir_up():
                         self.dir = 0
 
         else:
@@ -766,67 +772,39 @@ class Pinky(Ghost):
                 else:
                     vector = (self.col - 4.0, self.row - 6.0)
 
-                if vector[0] < 0:
-                    dir_hor = 'r'
-                elif vector[0] > 0:
-                    dir_hor = 'l'
-                else:
-                    dir_hor = ''
-
-                if vector[1] < 0:
-                    dir_ver = 'b'
-                elif vector[1] > 0:
-                    dir_ver = 't'
-                else:
-                    dir_ver = ''
+                dir_hor, dir_ver = find_direction(vector)
 
                 if game.ghosts[0].row == self.row:
-                    if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
-                            and self.row % 1.0 == 0 \
-                            and 3 != self.dir:
+                    if self.can_move_dir_right():
                         self.dir = 1
                         return
-                    elif can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
-                            and self.row % 1.0 == 0 \
-                            and self.dir != 1:
+                    elif self.can_move_dir_left():
                         self.dir = 3
                         return
                 elif game.ghosts[0].col == self.col:
-                    if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
-                            and self.col % 1.0 == 0 \
-                            and 2 != self.dir:
+                    if self.can_move_dir_up():
                         self.dir = 0
                         return
-                    elif can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
-                            and self.col % 1.0 == 0 \
-                            and 0 != self.dir:
+                    elif self.can_move_dir_bottom():
                         self.dir = 2
                         return
 
                 if self.dir % 2 != 0:
                     if dir_ver == 't':
-                        if can_move(math.floor(self.row - self.speed),
-                                    self.col, self.key_leave_home) \
-                                and self.col % 1.0 == 0 and 2 != self.dir:
+                        if self.can_move_dir_up():
                             self.dir = 0
                             return
                     elif dir_ver == 'b':
-                        if can_move(math.ceil(self.row + self.speed),
-                                    self.col, self.key_leave_home) \
-                                and self.col % 1.0 == 0 and 0 != self.dir:
+                        if self.can_move_dir_bottom():
                             self.dir = 2
                             return
                 else:
                     if dir_hor == 'l':
-                        if can_move(self.row, math.floor(self.col - self.speed),
-                                    self.key_leave_home) \
-                                and self.row % 1.0 == 0 and 1 != self.dir:
+                        if self.can_move_dir_left():
                             self.dir = 3
                             return
                     elif dir_hor == 'r':
-                        if can_move(self.row, math.ceil(self.col + self.speed),
-                                    self.key_leave_home) \
-                                and self.row % 1.0 == 0 and 3 != self.dir:
+                        if self.can_move_dir_right():
                             self.dir = 1
                             return
             else:
@@ -887,37 +865,21 @@ class Inky(Ghost):
                 else:
                     vector = [self.col - 7.0, self.row - 30.0]
 
-                if vector[0] < 0:
-                    dir_pacman_hor = 'r'
-                elif vector[0] > 0:
-                    dir_pacman_hor = 'l'
-                else:
-                    dir_pacman_hor = ''
-
-                if vector[1] < 0:
-                    dir_pacman_ver = 'b'
-                elif vector[1] > 0:
-                    dir_pacman_ver = 't'
-                else:
-                    dir_pacman_ver = ''
+                dir_hor, dir_ver = find_direction(vector)
 
                 if self.dir % 2 == 0:
-                    if dir_pacman_hor == 'r':
-                        if can_move(self.row, math.ceil(self.col + self.speed),
-                                    self.key_leave_home) and self.row % 1.0 == 0 and 3 != self.dir:
+                    if dir_hor == 'r':
+                        if self.can_move_dir_right():
                             self.dir = 1
-                    elif dir_pacman_hor == 'l':
-                        if can_move(self.row, math.floor(self.col - self.speed),
-                                    self.key_leave_home) and self.row % 1.0 == 0 and 1 != self.dir:
+                    elif dir_hor == 'l':
+                        if self.can_move_dir_left():
                             self.dir = 3
                 else:
-                    if dir_pacman_ver == 'b':
-                        if can_move(math.ceil(self.row + self.speed), self.col,
-                                    self.key_leave_home) and self.col % 1.0 == 0 and 0 != self.dir:
+                    if dir_ver == 'b':
+                        if self.can_move_dir_bottom():
                             self.dir = 2
-                    elif dir_pacman_ver == 't':
-                        if can_move(math.floor(self.row - self.speed), self.col,
-                                    self.key_leave_home) and self.col % 1.0 == 0 and 2 != self.dir:
+                    elif dir_ver == 't':
+                        if self.can_move_dir_up():
                             self.dir = 0
             else:
                 self.leave_home()
@@ -976,41 +938,21 @@ class Clyde(Ghost):
                 else:
                     vector = (self.col - 19.0, self.row - 30.0)
 
-                    if vector[0] < 0:
-                        dir_pacman_hor = 'r'
-                    elif vector[0] > 0:
-                        dir_pacman_hor = 'l'
-                    else:
-                        dir_pacman_hor = ''
-
-                    if vector[1] < 0:
-                        dir_pacman_ver = 'b'
-                    elif vector[1] > 0:
-                        dir_pacman_ver = 't'
-                    else:
-                        dir_pacman_ver = ''
+                    dir_hor, dir_ver = find_direction(vector)
 
                     if self.dir % 2 == 0:
-                        if dir_pacman_hor == 'r':
-                            if can_move(self.row,
-                                        math.ceil(self.col + self.speed)) and self.row % 1.0 == 0 \
-                                    and 3 != self.dir:
+                        if dir_hor == 'r':
+                            if self.can_move_dir_right():
                                 self.dir = 1
-                        elif dir_pacman_hor == 'l':
-                            if can_move(self.row,
-                                        math.floor(self.col - self.speed)) and self.row % 1.0 == 0 \
-                                    and 1 != self.dir:
+                        elif dir_hor == 'l':
+                            if self.can_move_dir_left():
                                 self.dir = 3
                     else:
-                        if dir_pacman_ver == 'b':
-                            if can_move(math.ceil(self.row + self.speed),
-                                        self.col) and self.col % 1.0 == 0 \
-                                    and 0 != self.dir:
+                        if dir_ver == 'b':
+                            if self.can_move_dir_bottom():
                                 self.dir = 2
-                        elif dir_pacman_ver == 't':
-                            if can_move(math.floor(self.row - self.speed),
-                                        self.col) and self.col % 1.0 == 0 \
-                                    and 2 != self.dir:
+                        elif dir_ver == 't':
+                            if self.can_move_dir_up():
                                 self.dir = 0
             else:
                 self.leave_home()
