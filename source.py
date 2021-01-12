@@ -567,57 +567,54 @@ class Pacman:
                                  square, square))
 
 
-class Ghost:
-    SPRITES = []
+class Ghost:  # родительский класс для всех призраков, в котором хранятся основные методы
+    SPRITES = []  # список спрайтов для призраков
 
-    SPRITE_FRIGHTENED = pygame.image.load(ELEMENT_PATH + "tile072.png")
-    SPRITE_FRIGHTENED_WHITE = pygame.image.load(ELEMENT_PATH + 'tile070.png')
+    SPRITE_FRIGHTENED = pygame.image.load(ELEMENT_PATH + "tile072.png")  # спрайт,
+    # когда призрак испуган
+    SPRITE_FRIGHTENED_WHITE = pygame.image.load(ELEMENT_PATH + 'tile070.png')  # спрайт,
+    # когда призрак испуган, только белый
 
     def __init__(self, row, col):
         self.row = row
         self.col = col
         self.speed = 1 / 2
         self.image = None
-        self.dir = 0
-        self.active = True
+        self.dir = 0  # 0: вверх, 1: вправо, 2: вниз, 3: влево
+        self.active = True  # флаг, отвечающий за активность призрака
         self.active_scatter = False  # рассеивание
         self.active_frightened = False  # испуг
-        self.calculate_ticks = False
-        self.key_leave_home = True
+        self.calculate_ticks = False  # флаг, отвечающий за начало или конец подсчета тиков
+        self.key_leave_home = True  # флаг, True если призраки в доме, False,
+        # если призраки вышли из дома
 
-    def update(self):
+    def update(self):  # метод для изменения положения призрака, изменения его активности и т.д.
         self.change_active()
         if self.active:
             self.change_loc()
             self.change_direction()
 
-            if self.move():
+            if self.move():  # сделано для того, чтобы если призрак не движется,
+                # то он менял свое направление
                 return
 
             self.move()
 
-    def change_active_scatter(self):
+    def change_active_scatter(self):  # для того, чтобы активировать разбегание, которое,
+        # к сожалению, так и не было реализовано в игре
         self.active_scatter = True
         self.active_frightened = False
 
-    def change_active_frightened(self):
-        self.active_frightened = True
-        self.active_scatter = False
-
-    def change_activities(self):
-        self.active_scatter = False
-        self.active_frightened = False
-
-    def transform_sprite(self):
+    def transform_sprite(self):  # функиця для трансформации спрайта
         self.image = pygame.transform.scale(self.image, (int(square * sprite_ratio),
                                                          int(square * sprite_ratio)))
         screen.blit(self.image, (self.col * square + sprite_offset,
                                  self.row * square + sprite_offset,
                                  square, square))
 
-    def draw(self):
+    def draw(self):  # метод рисования призраков, в зависимости от состояния
         global start_ticks
-        if not self.active_frightened:
+        if not self.active_frightened:  # рисуем в обычном состоянии
             self.image = self.SPRITES[0]
             self.transform_sprite()
             if not self.active_frightened:
@@ -632,13 +629,13 @@ class Ghost:
 
             self.transform_sprite()
 
-        elif self.active_frightened:
+        elif self.active_frightened:  # рисуем в испуге
             self.transform_sprite()
             if not self.calculate_ticks:
                 start_ticks = pygame.time.get_ticks()
                 self.calculate_ticks = True
             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
-            if 4.0 < seconds < 7.0:
+            if 4.0 < seconds < 7.0:  # в последние три секунды мигает
                 if int(seconds) % 2 == 0:
                     self.image = self.SPRITE_FRIGHTENED_WHITE
                 else:
@@ -646,22 +643,21 @@ class Ghost:
             elif seconds >= 7.0:
                 self.active_frightened = False
                 self.calculate_ticks = False
-                self.speed = 1 / 2
             else:
                 self.image = self.SPRITE_FRIGHTENED
             self.transform_sprite()
 
-    def change_direction(self):
+    def change_direction(self):  # метод разные для каждого призрака
         pass
 
-    def change_loc(self):
+    def change_loc(self):  # метод для входа и выхода из тоннеля
         if self.col < 0.5:
             self.col = 27.0
 
         if self.col > 27.0:
             self.col = 0.5
 
-    def choose_direction_in_frightened(self):
+    def choose_direction_in_frightened(self):  # метод для выбора направления в испуге
         if self.dir == 0:
             self.random_choose_direction([0, 1, 3])
 
@@ -674,7 +670,8 @@ class Ghost:
         elif self.dir == 3:
             self.random_choose_direction([0, 2, 3])
 
-    def turn_in_impasse(self, moved):
+    def turn_in_impasse(self, moved):  # если призрак застрял, что бывает часто,
+        # то он выбирает направление из возможных
         if not moved:
             if self.can_move_dir_up():
                 self.dir = 0
@@ -685,7 +682,7 @@ class Ghost:
             elif self.can_move_dir_left():
                 self.dir = 3
 
-    def random_choose_direction(self, directions):
+    def random_choose_direction(self, directions):  # функция для случайного выбора направлений
         direction = random.choice(directions)
         if self.can_move_in_this_dir(direction):
             self.dir = direction
@@ -699,7 +696,8 @@ class Ghost:
                 if self.can_move_in_this_dir(directions[0]):
                     self.dir = directions[0]
 
-    def can_move_in_this_dir(self, direction):
+    def can_move_in_this_dir(self, direction):  # функция, которая просматривает,
+        # может ли призрак двигаться в каком-то направлении
         if direction == 0:
             if self.can_move_dir_up():
                 return True
@@ -715,7 +713,7 @@ class Ghost:
 
         return False
 
-    def move(self):
+    def move(self):  # метод для самого передвижения призрака
         moved = False
         if self.dir == 0:
             if self.can_move_dir_up():
@@ -734,38 +732,38 @@ class Ghost:
                 self.col -= self.speed
                 moved = True
 
-        self.turn_in_impasse(moved)
+        self.turn_in_impasse(moved)  # проверка, не застрял ли призрак
 
         return moved
 
-    def change_active(self):
+    def change_active(self):  # метод изменения активности, различный для каждого призрака
         pass
 
-    def leave_home(self):
+    def leave_home(self):  # метод выхода из дома призраков, различный для всех
         pass
 
-    def can_move_dir_up(self):
+    def can_move_dir_up(self):  # метод определения может ли призрак двигаться вверх
         if can_move(math.floor(self.row - self.speed), self.col, self.key_leave_home) \
                 and self.col % 1.0 == 0 \
                 and 2 != self.dir:
             return True
         return False
 
-    def can_move_dir_right(self):
+    def can_move_dir_right(self):  # метод определения может ли призрак двигаться вправо
         if can_move(self.row, math.ceil(self.col + self.speed), self.key_leave_home) \
                 and self.row % 1.0 == 0 \
                 and 3 != self.dir:
             return True
         return False
 
-    def can_move_dir_bottom(self):
+    def can_move_dir_bottom(self):  # метод определения может ли призрак двигаться вниз
         if can_move(math.ceil(self.row + self.speed), self.col, self.key_leave_home) \
                 and self.col % 1.0 == 0 \
                 and 0 != self.dir:
             return True
         return False
 
-    def can_move_dir_left(self):
+    def can_move_dir_left(self):  # метод определения может ли призрак двигаться влево
         if can_move(self.row, math.floor(self.col - self.speed), self.key_leave_home) \
                 and self.row % 1.0 == 0 \
                 and self.dir != 1:
@@ -792,7 +790,8 @@ class Blinky(Ghost):
         self.calculate_ticks = False
         self.key_leave_home = False
 
-    def change_direction(self):
+    def change_direction(self):  # Блинки движется просто за Пакманом,
+        # когда есть возможность где-то повернуть в сторону Пакмана, то он это делает
         if not self.active_frightened:
             if not self.active_scatter:
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
@@ -840,7 +839,7 @@ class Pinky(Ghost):
         self.calculate_ticks = False
         self.key_leave_home = True
 
-    def change_active(self):
+    def change_active(self):  # выходит сразу же за Блинки
         self.active = True
 
     def leave_home(self):
@@ -848,7 +847,8 @@ class Pinky(Ghost):
         if self.col >= 13.5 and self.row <= 14.0:
             self.key_leave_home = False
 
-    def change_direction(self):
+    def change_direction(self):  # выбирает клетку на четыре перед Пакманом и движется в эту точку,
+        # таким образом он пытается обогнать Пакмана
         if not self.active_frightened:
             if not self.key_leave_home:
                 pacman_dir = game.pacman.dir
@@ -926,7 +926,7 @@ class Inky(Ghost):
         self.calculate_ticks = False
         self.key_leave_home = True
 
-    def change_active(self):
+    def change_active(self):  # выходит, когда Пакман съест 30 точек
         if game.get_points() >= 30:
             self.active = True
 
@@ -938,7 +938,9 @@ class Inky(Ghost):
         if self.col >= 13.5 and self.row <= 14.0:
             self.key_leave_home = False
 
-    def change_direction(self):
+    def change_direction(self):  # выбирает точку на две перед Пакманом,
+        # строит вектор от Блинки до этой точки,
+        # удлинняет его вдвое и движется в получившуюся координату
         if not self.active_frightened:
             if not self.key_leave_home:
                 if not self.active_scatter:
@@ -1003,7 +1005,7 @@ class Clyde(Ghost):
         self.calculate_ticks = False
         self.key_leave_home = True
 
-    def change_active(self):
+    def change_active(self):  # выходит после того, как Пакман соберет 80 точек
         if game.get_points() >= 80:
             self.active = True
 
@@ -1016,7 +1018,7 @@ class Clyde(Ghost):
         if self.col == 13.5 and self.row == 14.0:
             self.key_leave_home = False
 
-    def change_direction(self):
+    def change_direction(self):  # движется случайно в любой момент времени
         if not self.active_frightened:
             if not self.key_leave_home:
                 if not self.active_scatter:
