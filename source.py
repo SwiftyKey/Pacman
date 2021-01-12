@@ -80,7 +80,7 @@ new_game = False
 pygame.mixer.init()
 
 
-def find_direction(vector: tuple):
+def find_direction(vector: list):
     if vector[0] < 0:
         dir_hor = 'r'
     elif vector[0] > 0:
@@ -843,7 +843,7 @@ class Blinky(Ghost):
                 vector = (self.col - game.pacman.col, self.row - game.pacman.row)
 
             else:
-                vector = (self.col - 26.0, self.row - 6.0)
+                vector = [self.col - 26.0, self.row - 6.0]
 
             dir_pacman_hor, dir_pacman_ver = find_direction(vector)
 
@@ -1081,7 +1081,7 @@ class Clyde(Ghost):
                         self.random_choose_direction([0, 2, 3])
 
                 else:
-                    vector = (self.col - 19.0, self.row - 30.0)
+                    vector = [self.col - 19.0, self.row - 30.0]
 
                     dir_hor, dir_ver = find_direction(vector)
 
