@@ -69,7 +69,7 @@ new_game = False
 pygame.mixer.init()
 
 
-def find_direction(vector):
+def find_direction(vector):  # функция для определения положения точки, относительно призрака
     if vector[0] < 0:
         dir_hor = 'r'
     elif vector[0] > 0:
@@ -601,7 +601,7 @@ class Ghost:  # родительский класс для всех призра
             self.move()
 
     def change_active_scatter(self):  # для того, чтобы активировать разбегание, которое,
-        # к сожалению, так и не было реализовано в игре
+        # к сожалению, так и не было реализовано в игре :(
         self.active_scatter = True
         self.active_frightened = False
 
@@ -647,7 +647,7 @@ class Ghost:  # родительский класс для всех призра
                 self.image = self.SPRITE_FRIGHTENED
             self.transform_sprite()
 
-    def change_direction(self):  # метод разные для каждого призрака
+    def change_direction(self):  # метод смены направления, разные для каждого призрака
         pass
 
     def change_loc(self):  # метод для входа и выхода из тоннеля
@@ -771,7 +771,7 @@ class Ghost:  # родительский класс для всех призра
         return False
 
 
-class Blinky(Ghost):
+class Blinky(Ghost):  # красный призрак, преследует Пакмана
     SPRITES = [pygame.image.load(ELEMENT_PATH + "tile102.png"),
                pygame.image.load(ELEMENT_PATH + "tile096.png"),
                pygame.image.load(ELEMENT_PATH + "tile098.png"),
@@ -820,7 +820,7 @@ class Blinky(Ghost):
             self.choose_direction_in_frightened()
 
 
-class Pinky(Ghost):
+class Pinky(Ghost):  # розовый призрак, пытается обогнать Пакмана
     SPRITES = [pygame.image.load(ELEMENT_PATH + "tile134.png"),
                pygame.image.load(ELEMENT_PATH + "tile128.png"),
                pygame.image.load(ELEMENT_PATH + "tile130.png"),
@@ -907,7 +907,8 @@ class Pinky(Ghost):
             self.choose_direction_in_frightened()
 
 
-class Inky(Ghost):
+class Inky(Ghost):  # бирюзовый призрак, обладает более сложным алгоритмом,
+    # чем другие, сам алгоритм описан в функции change_direction
     SPRITES = [pygame.image.load(ELEMENT_PATH + "tile142.png"),
                pygame.image.load(ELEMENT_PATH + "tile136.png"),
                pygame.image.load(ELEMENT_PATH + "tile138.png"),
@@ -986,7 +987,7 @@ class Inky(Ghost):
             self.choose_direction_in_frightened()
 
 
-class Clyde(Ghost):
+class Clyde(Ghost):  # оранжевый призрак, движется всегда случайно
     SPRITES = [pygame.image.load(ELEMENT_PATH + "tile150.png"),
                pygame.image.load(ELEMENT_PATH + "tile144.png"),
                pygame.image.load(ELEMENT_PATH + "tile146.png"),
