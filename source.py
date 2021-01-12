@@ -80,7 +80,7 @@ new_game = False
 pygame.mixer.init()
 
 
-def find_direction(vector):
+def find_direction(vector: tuple):
     if vector[0] < 0:
         dir_hor = 'r'
     elif vector[0] > 0:
@@ -107,14 +107,14 @@ def can_move(row: float, col: float, key=True):
 
 
 # функция для остановки на какое-то время
-def pause(time):
+def pause(time: int):
     cur = 0
     while not cur == time:
         cur += 1
 
 
 # функция для прогирывания музыки
-def play_music(music, force=False):
+def play_music(music: str, force=False):
     if force:
         pygame.mixer.music.unload()
         pygame.mixer.music.load(MUSIC_PATH + music)
