@@ -65,7 +65,6 @@ clock = pygame.time.Clock()
 running = True
 new_game = False
 
-
 pygame.mixer.init()
 
 
@@ -92,15 +91,6 @@ def can_move(row: float, col: float, key=True):
             int(row) == 15 and int(col) in (13, 14) and key:
         return True
     return False
-
-
-def reset():
-    global game
-    game.pacman = Pacman(26.0, 13.5)
-    game.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
-    game.lives -= 1
-    game.paused = True
-    game.render()
 
 
 def pause(time):
@@ -242,7 +232,7 @@ class Game:
         for ghost in self.ghosts:
             if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
                 if self.lives > 1:
-                    reset()
+                    self.reset()
                     play_music("pacman_death.wav", True)
                     return
                 else:
@@ -319,6 +309,13 @@ class Game:
         pygame.display.update()
         pause(5000000)
         self.game_over_counter += 1
+
+    def reset(self):
+        self.pacman = Pacman(26.0, 13.5)
+        self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
+        self.lives -= 1
+        self.paused = True
+        self.render()
 
     def update(self):
         if self.is_game_over:
@@ -409,9 +406,6 @@ class Game:
                 int(square * sprite_ratio), int(square * sprite_ratio)))
             screen.blit(image, (
                 self.berry_location[1] * square, self.berry_location[0] * square, square, square))
-
-    def get_score(self):
-        return self.score
 
     def get_points(self):
         return self.points
@@ -1064,8 +1058,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             game.started()
+        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
                 game.pacman.change_direction(0)
             elif event.key == pygame.K_d:
