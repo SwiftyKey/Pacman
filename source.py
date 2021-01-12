@@ -80,11 +80,7 @@ new_game = False
 pygame.mixer.init()
 
 
-<<<<<<< HEAD
-def find_direction(vector: list):
-=======
-def find_direction(vector):  # функция для определения положения точки, относительно призрака
->>>>>>> 371e6519209840a45d0e6604827782e0af0cc487
+def find_direction(vector: list):  # функция для определения положения точки, относительно призрака
     if vector[0] < 0:
         dir_hor = 'r'
     elif vector[0] > 0:
