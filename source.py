@@ -1093,6 +1093,7 @@ class Clyde(Ghost):
 game = Game()
 splash_screen()
 
+# основной цикл игры
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
