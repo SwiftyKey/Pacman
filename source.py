@@ -243,10 +243,13 @@ class Game:
         self.paused = True
         self.level_timer = 0
         self.is_game_over = False
+        self.is_win = False
         self.game_over_counter = 0
 
     # метод для проверки взаимодействия объектов с пакманом
     def check_surroundings(self):
+        global start_ticks
+
         for ghost in self.ghosts:
             if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
                 if self.lives > 1:
@@ -289,8 +292,9 @@ class Game:
             self.record_high_score()
 
         if self.points == 260:
-            # self.win             play_music("intermission.wav", True)
-            pass
+            self.is_win = True
+            play_music("intermission.wav", True)
+            return
 
     # метод для проверки возможности касания пакмана
     def touching_pacman(self, row: float, col: float):
@@ -332,6 +336,14 @@ class Game:
         pause(5000000)
         self.game_over_counter += 1
 
+    # метод для победы и начала новой игры
+    @staticmethod
+    def win():
+        global new_game
+
+        new_game = True
+        return
+
     # метод для начала игры с новой жизни
     def reset(self):
         self.pacman = Pacman(26.0, 13.5)
@@ -344,6 +356,10 @@ class Game:
     def update(self):
         if self.is_game_over:
             self.game_over()
+            return
+
+        if self.is_win:
+            self.win()
             return
 
         self.display_lives()
