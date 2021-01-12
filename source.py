@@ -4,12 +4,14 @@ import random
 
 import pygame
 
+# пути к ресурсам
 BOARD_PATH = "resources/BoardTiles/"
 TEXT_PATH = "resources/TextTiles/"
 ELEMENT_PATH = "resources/OtherTiles/"
 DATA_PATH = "resources/UserData/"
 MUSIC_PATH = "resources/Music/"
 
+# исходная карта
 original_game_Board = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -48,21 +50,31 @@ original_game_Board = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
 ]
+# карта для игры
 game_board = copy.deepcopy(original_game_Board)
+# размер клетки
 square = 20
 
+# соотношение спрайтов
 sprite_ratio = 3 / 2
+# смещение
 sprite_offset = square * (1 - sprite_ratio) * (1 / 2)
 
+# размеры окна
 (width, height) = (len(game_board[0]) * square, len(game_board) * square)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Pacman")
+# цветовая палитра
 pellet_color = (222, 161, 133)
 
+# количество кадров в секунду
 fps = 60
+# переменная для сохранение количества тиков для испуга у призраков
 start_ticks = 0
 clock = pygame.time.Clock()
+# флаг для старта программы
 running = True
+# флаг для старта новой игры
 new_game = False
 
 pygame.mixer.init()
@@ -86,6 +98,7 @@ def find_direction(vector):
     return dir_hor, dir_ver
 
 
+# функция для проверки возможности пойти в какую-то клетку
 def can_move(row: float, col: float, key=True):
     if col == -1 or col == len(game_board[0]) or game_board[int(row)][int(col)] != 3 or \
             int(row) == 15 and int(col) in (13, 14) and key:
@@ -93,12 +106,14 @@ def can_move(row: float, col: float, key=True):
     return False
 
 
+# функция для остановки на какое-то время
 def pause(time):
     cur = 0
     while not cur == time:
         cur += 1
 
 
+# функция для прогирывания музыки
 def play_music(music, force=False):
     if force:
         pygame.mixer.music.unload()
@@ -112,6 +127,7 @@ def play_music(music, force=False):
             pygame.mixer.music.play()
 
 
+# функция для построения заставки игры
 def splash_screen():
     pacman_title = ["tile016.png", "tile000.png", "tile448.png", "tile012.png", "tile000.png",
                     "tile013.png"]
@@ -205,6 +221,7 @@ def splash_screen():
     pygame.display.update()
 
 
+# класс игры
 class Game:
     def __init__(self):
         self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
@@ -228,6 +245,7 @@ class Game:
         self.is_game_over = False
         self.game_over_counter = 0
 
+    # метод для проверки взаимодействия объектов с пакманом
     def check_surroundings(self):
         for ghost in self.ghosts:
             if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
@@ -274,6 +292,7 @@ class Game:
             # self.win             play_music("intermission.wav", True)
             pass
 
+    # метод для проверки возможности касания пакмана
     def touching_pacman(self, row: float, col: float):
         if row - 0.5 <= self.pacman.row <= row and col == self.pacman.col:
             return True
@@ -287,12 +306,15 @@ class Game:
             return True
         return False
 
+    # метод для установки флага старта игры на True
     def started(self):
         self.paused = False
 
+    # метод для проверки на остановку игры
     def is_paused(self):
         return self.paused is True
 
+    # метод для окончания игры и начала новой
     def game_over(self):
         global new_game
         if self.game_over_counter == 12:
@@ -310,6 +332,7 @@ class Game:
         pause(5000000)
         self.game_over_counter += 1
 
+    # метод для начала игры с новой жизни
     def reset(self):
         self.pacman = Pacman(26.0, 13.5)
         self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
@@ -317,6 +340,7 @@ class Game:
         self.paused = True
         self.render()
 
+    # метод для обновления экрана игры
     def update(self):
         if self.is_game_over:
             self.game_over()
@@ -337,6 +361,7 @@ class Game:
 
         self.level_timer += 1
 
+    # метод для отображения количества собранных очнов
     def display_score(self):
         text_one_up = ["tile033.png", "tile021.png", "tile016.png"]
         text_high_score = ["tile007.png", "tile008.png", "tile006.png", "tile007.png", "tile015.png",
@@ -379,6 +404,7 @@ class Game:
             screen.blit(image, ((high_score_start + 6 + index) * square, square + 4, square, square))
             index += 1
 
+    # метод для отображения собранных ягод
     def display_collected_berries(self):
         berry = [34, 26]
         for i in range(len(self.berries_collected)):
@@ -388,6 +414,7 @@ class Game:
             screen.blit(image, (
                 (berry[1] - (2 * i)) * square, berry[0] * square + 5, square, square))
 
+    # метод для отображения количества жизней
     def display_lives(self):
         location = [[34, 1], [34, 3]]
         for i in range(self.lives - 1):
@@ -398,6 +425,7 @@ class Game:
                                 location[i][0] * square - sprite_offset,
                                 square, square))
 
+    # метод для рисовки ягод
     def draw_berry(self):
         if self.level_timer in range(self.berry_state[0], self.berry_state[1]) \
                 and not self.berry_state[2]:
@@ -407,19 +435,23 @@ class Game:
             screen.blit(image, (
                 self.berry_location[1] * square, self.berry_location[0] * square, square, square))
 
+    # метод для получения количества съеденых точек
     def get_points(self):
         return self.points
 
+    # метод для получения лучшего рекорда
     def get_high_score(self):
         file = open(DATA_PATH + "high_score.txt", "r")
         self.high_score = int(file.read())
         file.close()
 
+    # метод для записи нового рекорда
     def record_high_score(self):
         file = open(DATA_PATH + "high_score.txt", "w+")
         file.write(str(self.high_score))
         file.close()
 
+    # метод для рисовки поля
     def render(self):
         screen.fill((0, 0, 0))
 
@@ -455,6 +487,7 @@ class Game:
         pygame.display.update()
 
 
+# класс для пакмана
 class Pacman:
     def __init__(self, row: float, col: float):
         self.row = row
@@ -467,9 +500,11 @@ class Pacman:
         self.dir = 0  # 0: вверх, 1: вправо, 2: вниз, 3: влево
         self.new_dir = 0
 
+    # метод для изменения направления движения
     def change_direction(self, new_dir: int):
         self.new_dir = new_dir
 
+    # метод для обновления модели пакмана на экране
     def update(self):
         if self.col < 0.5:
             self.col = 27.0
@@ -518,7 +553,7 @@ class Pacman:
                     and self.row % 1.0 == 0:
                 self.col -= self.speed
 
-    # метод для рисования пакман в зависимости от его состояния
+    # метод для рисования пакмана в зависимости от его состояния
     def draw(self):
         if game.is_paused():
             self.image = pygame.image.load(ELEMENT_PATH + "tile112.png")
@@ -567,6 +602,7 @@ class Ghost:  # родительский класс для всех призра
     SPRITE_FRIGHTENED = pygame.image.load(ELEMENT_PATH + "tile072.png")  # спрайт,
     # когда призрак испуган
     SPRITE_FRIGHTENED_WHITE = pygame.image.load(ELEMENT_PATH + 'tile070.png')  # спрайт,
+
     # когда призрак испуган, только белый
 
     def __init__(self, row, col):
@@ -1053,6 +1089,7 @@ class Clyde(Ghost):
             self.choose_direction_in_frightened()
 
 
+# инициализация игры и заставки
 game = Game()
 splash_screen()
 
@@ -1060,8 +1097,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # старт игры
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             game.started()
+        # изменение направление движений игрока
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
                 game.pacman.change_direction(0)
@@ -1071,9 +1110,11 @@ while running:
                 game.pacman.change_direction(2)
             elif event.key == pygame.K_a:
                 game.pacman.change_direction(3)
+    # если игры не остановления, то рисуем поле и обновляем картинку игры
     if not game.is_paused():
         game.render()
         game.update()
+    # начала новой игры, если флаг истенен
     if new_game:
         game = Game()
         screen.fill((0, 0, 0))
