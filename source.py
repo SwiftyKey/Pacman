@@ -223,7 +223,9 @@ def splash_screen():
 
 # класс игры
 class Game:
-    def __init__(self):
+    POINTS = 260
+
+    def __init__(self, levels: int = 1):
         self.ghosts = [Blinky(14.0, 13.5), Pinky(17.0, 13.5), Clyde(17.0, 15.5), Inky(17.0, 11.5)]
         self.ghosts_frightened = False
 
@@ -242,13 +244,15 @@ class Game:
 
         self.paused = True
         self.level_timer = 0
+        self.levels = levels
+        self.cur_level = 1
         self.is_game_over = False
         self.is_win = False
         self.game_over_counter = 0
 
     # метод для проверки взаимодействия объектов с пакманом
     def check_surroundings(self):
-        global start_ticks
+        global start_ticks, game_board, original_game_Board
 
         for ghost in self.ghosts:
             if self.touching_pacman(ghost.row, ghost.col) and not ghost.active_frightened:
@@ -291,9 +295,15 @@ class Game:
             self.high_score = self.score
             self.record_high_score()
 
-        if self.points == 260:
+        if self.points == self.POINTS and self.cur_level == self.levels:
             self.is_win = True
             play_music("intermission.wav", True)
+            return
+        elif self.points == self.POINTS and self.cur_level < self.levels:
+            game_board = copy.deepcopy(original_game_Board)
+            play_music("intermission.wav")
+            self.new_level()
+            play_music("game_start")
             return
 
     # метод для проверки возможности касания пакмана
@@ -351,6 +361,15 @@ class Game:
         self.lives -= 1
         self.paused = True
         self.render()
+
+    # метод для начала нового уровня
+    def new_level(self):
+        self.reset()
+        self.lives += 1
+        self.cur_level += 1
+        self.berries_collected = []
+        self.berry = f"tile08{random.randrange(0, 6)}.png"
+        self.points = 0
 
     # метод для обновления экрана игры
     def update(self):
@@ -1107,7 +1126,7 @@ class Clyde(Ghost):  # оранжевый призрак, движется вс�
 
 
 # инициализация игры и заставки
-game = Game()
+game = Game(3)
 splash_screen()
 
 # основной цикл игры
@@ -1118,6 +1137,7 @@ while running:
         # старт игры
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             game.started()
+            play_music("game_start.wav")
         # изменение направление движений игрока
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
@@ -1138,6 +1158,6 @@ while running:
         screen.fill((0, 0, 0))
         splash_screen()
         new_game = False
-        game_board = original_game_Board
+        game_board = copy.deepcopy(original_game_Board)
     pygame.display.flip()
     clock.tick(fps)
