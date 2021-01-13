@@ -64,7 +64,7 @@ sprite_offset = square * (1 - sprite_ratio) * (1 / 2)
 (width, height) = (len(game_board[0]) * square, len(game_board) * square)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Pacman")
-# цветовая палитра
+# цветовая палитра клеток
 pellet_color = (222, 161, 133)
 
 # количество кадров в секунду
