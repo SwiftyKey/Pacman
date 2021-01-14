@@ -700,12 +700,12 @@ class Ghost:  # родительский класс для всех призра
                 start_ticks = pygame.time.get_ticks()
                 self.calculate_ticks = True
             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
-            if 4.0 < seconds < 7.0:  # в последние три секунды мигает
-                if int(seconds) % 2 == 0:
+            if 3.0 < seconds < 6.0:  # в последние три секунды мигает
+                if int(seconds) % 2 == 1:
                     self.image = self.SPRITE_FRIGHTENED_WHITE
                 else:
                     self.image = self.SPRITE_FRIGHTENED
-            elif seconds >= 7.0:
+            elif seconds >= 6.0:
                 self.active_frightened = False
                 self.calculate_ticks = False
             else:
